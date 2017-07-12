@@ -13,7 +13,7 @@
 
 #include "../select.h"
 
-int			color_select()
+int					color_select()
 {
 	char	*res;
 
@@ -22,7 +22,7 @@ int			color_select()
 	return (FALSE);
 }
 
-int			reset_term(struct termios *term)
+int					reset_term(struct termios *term)
 {
 	if (tcgetattr(0, term) == -1)
 		return (FALSE);
@@ -32,9 +32,10 @@ int			reset_term(struct termios *term)
 	return (FALSE);
 }
 
-int			read_term()
+int					read_term()
 {
-	char	buff[PATH_MAX];
+	char			buff[PATH_MAX];
+	char			*res;
 
 
 	while (read(0, buff, PATH_MAX) > 0)
@@ -42,17 +43,17 @@ int			read_term()
 		// printf("%c", buff[0]);
 		if (buff[0] == 27)
 		{
+			res = NULL;
 			if (buff[2] == 65)
-				printf("up\n");
-			if (buff[2] == 66)
-				printf("down\n");
-			if (buff[2] == 67)
-				printf("right\n");
-			if (buff[2] == 68)
-				printf("left\n");
-
-			// printf("touch pressed\n");
-			// printf("%d\n", buff[2]);
+			{
+				res = tgetstr("cm", 0);
+				tputs(tgoto(res, 12, 13), 1, display_on_screen);
+			}
+			else
+				res = tgetstr("us", 0);
+			tputs(res, 0, display_on_screen);
+			
+			keyboard_events(buff);
 		}
 		else if (buff[0] == 4)
 			printf("_ctr+d_");
@@ -62,21 +63,16 @@ int			read_term()
 	return (TRUE);
 }
 
-int			set_cannic_mode(struct termios *term)
+int					set_cannic_mode(struct termios *term)
 {
-	char	*term_name;
-	char	*tmp;
+	char			*term_name;
+	char			*tmp;
 
 	tmp = NULL;
 	if (!(term_name = getenv("TERM")))
 		return (FALSE);
-
-/*
-	// not working for some reason
-
-	if (tgetent(NULL, term_name) == 0)
-		return (-1);
-*/
+	if (tgetent(TERM_BUFF, term_name) < 1)
+		return (FALSE);
 	if (tcgetattr(0, term) < 0)
 		return (FALSE);
 	printf("%s\n", term_name);
@@ -88,16 +84,50 @@ int			set_cannic_mode(struct termios *term)
 	return (TRUE);
 }
 
-int			main(int ac, char **av)
+int					main(int ac, char **av)
 {
-	struct termios *term;
+	t_select		*select;
+	struct termios	*term;
 
 	if (!av || ac == 1)
 		return (FALSE);
 	if (!(term = malloc(sizeof(struct termios) + 1)))
 		return (FALSE);
-	set_cannic_mode(term);
+	if (!set_cannic_mode(term))
+		return (FALSE);
 	read_term();
+	select = init_selection(av);
 	reset_term(term);
+	select = delete_selection(&select);
 	return (FALSE);
 } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
