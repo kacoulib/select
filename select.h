@@ -41,11 +41,13 @@ typedef struct 			s_select
 	struct 	s_select	*next;
 }						t_select;
 
+int						arr_len(char **arr);
 t_select				*create_selection(char *content, t_select *next);
-t_select				*delete_selection(t_select **head);
+t_select				*delete_selection(t_select *head);
 int						display_on_screen(int c);
-t_select				*init_selection(char **av);
-int						keyboard_events(char keyCode[]);
+t_select				*init_selection(char **av, t_select list[]);
+int						keyboard_events(char keyCode[], t_select select[], int len);
+
 
 
 #endif

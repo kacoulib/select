@@ -36,21 +36,21 @@ t_select		*create_selection(char *content, t_select *next)
 ** @return a null
 */
 
-t_select		*delete_selection(t_select **head)
+t_select		*delete_selection(t_select *head)
 {
 	t_select	*tmp;
 
-	if (!head || !*head)
+	if (!head)
 		return (NULL);
-	while (*head)
+	while (head)
 	{
-		tmp = (*head)->next;
-		if ((*head)->content)
-			free((*head)->content);
-		free(*head);
-		*head = tmp;
+		tmp = head->next;
+		if (head->content)
+			free(head->content);
+		// free(head); // @todo: can't free the current selection
+		head = tmp;
 	}
-	return (*head);
+	return (head);
 }
 
 /*
@@ -59,26 +59,24 @@ t_select		*delete_selection(t_select **head)
 ** @return return the top head of created selection
 */
 
-t_select		*init_selection(char **av)
+t_select		*init_selection(char **av, t_select list[])
 {
 	int			i;
 	t_select	*current;
 	t_select	*head;
 	t_select	*prev;
 
-	if (!(head = create_selection(av[1], NULL)))
-		return (NULL);
+	head = NULL;
 	prev = NULL;
-	i = 1;
+	i = -1;
 	while (av[++i])
 	{
 		if (!(current = create_selection(av[i], NULL)))
 			return (NULL);
 		if (prev)
 			prev->next = current;
-		if (!head->next)
-			head->next = current;
+		list[i] = *current;
 		prev = current;
 	}
-	return (head);
+	return (list);
 }
