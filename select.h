@@ -33,6 +33,8 @@
 # define FALSE 0
 # define TRUE 1
 # define PATH_MAX 3
+# define ANSI_COLOR_CYAN	"\x1B[36m"
+# define ANSI_COLOR_RESET	"\x1B[0m"
 
 typedef struct 			s_select
 {
@@ -47,6 +49,7 @@ t_select				*delete_selection(t_select *head);
 int						display_on_screen(int c);
 t_select				*init_selection(char **av, t_select list[]);
 int						keyboard_events(char keyCode[], t_select select[], int len);
+int						keyCode_delete(char keyCode[], t_select select[], int len);
 
 
 

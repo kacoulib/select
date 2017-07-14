@@ -24,12 +24,17 @@ int					color_select()
 
 int					reset_term(struct termios *term)
 {
+	char	*res;
+
 	if (tcgetattr(0, term) == -1)
 		return (FALSE);
 	term->c_lflag = (ICANON | ECHO);
-	if (tcsetattr(0, 0, term) == -1)
+	if (tcsetattr(0, TCSADRAIN, term) < 0)
 		return (FALSE);
-	return (FALSE);
+	if (!(res = tgetstr("ve", 0)))
+		return (FALSE);
+	tputs(res, 0, display_on_screen);
+	return (TRUE);
 }
 
 int					read_term(t_select select[], int select_len)
@@ -37,41 +42,22 @@ int					read_term(t_select select[], int select_len)
 	char			buff[PATH_MAX];
 	char			*res;
 	int				i;
-	// int				num;
-	// struct winsize w;
 
-	res = tgetstr("cl", 0);
+	if (!(res = tgetstr("cl", 0)))
+		return (FALSE);
+	tputs(res, 0, display_on_screen);
+	if (!(res = tgetstr("ti", 0)))
+		return (FALSE);
+	tputs(res, 0, display_on_screen);
+	if (!(res = tgetstr("vi", 0)))
+		return (FALSE);
 	tputs(res, 0, display_on_screen);
 	i = -1;
 	while (++i < select_len)
 		ft_putendl(select[i].content);
 	while (read(0, buff, PATH_MAX) > 0)
-	{
-		// printf("%c", buff[0]);
-		if (buff[0] == 27)
-		{
-			res = NULL;
-			// if (buff[2] == 65)
-			// {
-			// 	res = tgetstr("cm", 0);
-			// 	tputs(tgoto(res, 12, 13), 1, display_on_screen);
-			// }
-			// else if (buff[2] == 66)
-			// {
-			// 	res = tgetstr("ll", 0);
-			// 	tputs(tgoto(res, 0, 0), 1, display_on_screen);
-			// 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-			// 	// printf("(window size = %d %d)\n", w.ws_col, tgetnum("co"));
-			// }
-			// else
-			
-			keyboard_events(buff, select, select_len - 1);
-		}
-		// else if (buff[0] == 4)
-		// 	printf("_ctr+d_");
-		// else
-		// 	printf("%s", buff);
-	}
+		if (!keyboard_events(buff, select, select_len - 1))
+			break;
 	return (TRUE);
 }
 

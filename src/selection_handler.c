@@ -80,3 +80,18 @@ t_select		*init_selection(char **av, t_select list[])
 	}
 	return (list);
 }
+
+/*
+** Slice the nb element from x postion a array of t_select
+** and shift the elements.
+**
+** @return a TRUE on sucess FALSE on fail
+*/
+
+// int				splice_selection(t_select select[], int x, int nb)
+// {
+// 	int			i;
+
+// 	i = arr_len(select);
+// 	return (TRUE);
+// }
