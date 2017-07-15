@@ -10,12 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "../select.h"
 
-int					color_select()
+int					color_select(void)
 {
-	char	*res;
+	char			*res;
 
 	if (!(res = tgetstr("cl", NULL)))
 		return (FALSE);
@@ -24,40 +23,44 @@ int					color_select()
 
 int					reset_term(struct termios *term)
 {
-	char	*res;
+	char	*tmp;
 
 	if (tcgetattr(0, term) == -1)
 		return (FALSE);
 	term->c_lflag = (ICANON | ECHO);
 	if (tcsetattr(0, TCSADRAIN, term) < 0)
 		return (FALSE);
-	if (!(res = tgetstr("ve", 0)))
+	if (!(tmp = tgetstr("ve", 0))) // make cursor normal
 		return (FALSE);
-	tputs(res, 0, display_on_screen);
+	tputs(tmp, 0, display_on_screen);
 	return (TRUE);
 }
 
-int					read_term(t_select select[], int select_len)
+int					read_term(t_select select[], int *len, int *nb_select)
 {
 	char			buff[PATH_MAX];
-	char			*res;
+	char			*tmp;
 	int				i;
 
-	if (!(res = tgetstr("cl", 0)))
+	if (!(tmp = tgetstr("cl", 0))) // clear the screen
 		return (FALSE);
-	tputs(res, 0, display_on_screen);
-	if (!(res = tgetstr("ti", 0)))
+	tputs(tmp, 0, display_on_screen);
+	if (!(tmp = tgetstr("ti", 0)))
 		return (FALSE);
-	tputs(res, 0, display_on_screen);
-	if (!(res = tgetstr("vi", 0)))
+	tputs(tmp, 0, display_on_screen);
+	if (!(tmp = tgetstr("vi", 0))) // make cursor invisible
 		return (FALSE);
-	tputs(res, 0, display_on_screen);
+	tputs(tmp, 0, display_on_screen);
 	i = -1;
-	while (++i < select_len)
-		ft_putendl(select[i].content);
+	while (++i < (*len + 1))
+		printf("%s %d\n", select[i].content, i);
+	if (!(tmp = tgetstr("cm", 0)))
+		return (FALSE);
+	tputs(tgoto(tmp, 0, 0), 0, display_on_screen);
+	toggle_underline(select, 0);
 	while (read(0, buff, PATH_MAX) > 0)
-		if (!keyboard_events(buff, select, select_len - 1))
-			break;
+		if (!keyboard_events(buff, select, len, nb_select))
+			break ;
 	return (TRUE);
 }
 
@@ -85,6 +88,8 @@ int					main(int ac, char **av)
 {
 	t_select		select_list[arr_len((av[1] ? &av[1] : 0))];
 	struct termios	*term;
+	int				i;
+	int				nb_select;
 
 	if ((!av || ac == 1) || !(av = &av[1]))
 		return (FALSE);
@@ -92,16 +97,12 @@ int					main(int ac, char **av)
 		return (FALSE);
 	if (!set_cannic_mode(term))
 		return (FALSE);
-	ft_bzero(select_list, arr_len(av));
+	i = arr_len(av) - 1;
+	nb_select = 0;
+	ft_bzero(select_list, i);
 	init_selection(av, select_list);
-	read_term(select_list, arr_len(av));
+	read_term(select_list, &i, &nb_select);
 	reset_term(term);
 	delete_selection(&select_list[0]);
 	return (FALSE);
-} 
-
-
-
-
-
-
+}

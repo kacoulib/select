@@ -40,16 +40,30 @@ typedef struct 			s_select
 {
 	char				*content;
 	int					is_select;
-	struct 	s_select	*next;
+	int					is_show;
+	int					is_underline;
+	int					*nb_select;
 }						t_select;
 
 int						arr_len(char **arr);
-t_select				*create_selection(char *content, t_select *next);
+t_select				*create_selection(char *content);
 t_select				*delete_selection(t_select *head);
 int						display_on_screen(int c);
+// int						display_with_video_mode(t_select select[], int *x_pos,
+	// int lastpos, int *len);
+
 t_select				*init_selection(char **av, t_select list[]);
-int						keyboard_events(char keyCode[], t_select select[], int len);
-int						keyCode_delete(char keyCode[], t_select select[], int len);
+int						keyboard_events(char keyCode[], t_select select[],
+	int *len, int *nb_select);
+int						keyCode_delete(t_select select[], int x_pos, int *len,
+	int *nb_select);
+int						move_down(t_select select[], int *x_pos, int lastpos,
+	int *len);
+int						move_up(t_select select[], int *x_pos, int lastpos,
+	int *len);
+int						toggle_underline(t_select select[], int x_pos);
+int						underline_and_deplace(t_select select[], int x_pos,
+	int lastpos);
 
 
 

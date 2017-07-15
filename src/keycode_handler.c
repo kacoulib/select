@@ -12,25 +12,36 @@
 
 #include "../select.h"
 
-int					keyCode_space(t_select select[], int x_pos)
+int					keycode_return(t_select select[], int len, int *nb_select)
 {
-	char			*tmp;
+	int				i;
 
-	// ft_putendl(ANSI_COLOR_CYAN);
-	// ft_putendl(select[x_pos].content);
-	// ft_putendl(ANSI_COLOR_RESET);
-	// select = NULL;
-	if (select)
-		;
-	if (!(tmp = tgetstr("so", 0)))
-		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
-	if (!(tmp = tgetstr("se", 0)))
-		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
-	return (x_pos);
+	i = -1;
+	while (++i < len)
+	{
+		if (select[i].is_select)
+		{
+			ft_putstr(select[i].content);
+			if (--(*nb_select) > 0)
+				ft_putstr(" ");
+		}
+	}
+	ft_putchar('\n');
+	return (0);
 }
-int					keyCode_esc(t_select select[], int len)
+
+int					keycode_space(t_select select[], int *x_pos, int *nb_select,
+	int *len)
+{
+	if (select[*x_pos].is_select && (select[*x_pos].is_select = FALSE))
+		(*nb_select)--;
+	else if ((select[*x_pos].is_select = TRUE))
+		(*nb_select)++;
+	move_down(select, x_pos, *x_pos, len);
+	return (1);
+}
+
+int					keycode_esc(t_select select[], int len)
 {
 	int				i;
 
@@ -43,62 +54,48 @@ int					keyCode_esc(t_select select[], int len)
 	return (FALSE);
 }
 
-int					keyCode_ctr(t_select select[], int x_pos, int lastpos)
+int					keycode_delete(t_select select[], int x_pos, int *len,
+	int *nb_select)
 {
 	char			*tmp;
 
-	if (!(tmp = tgetstr("ue", 0)))
-		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
-	if (!(tmp = tgetstr("cm", 0)))
-		return (FALSE);
-	tputs(tgoto(tmp, 0, lastpos), 1, display_on_screen);
-	ft_putstr(select[lastpos].content);
-	tputs(tgoto(tmp, 0, x_pos), 1, display_on_screen);
-	if (!(tmp = tgetstr("us", 0)))
-		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
-	ft_putendl(select[x_pos].content);
-	return (TRUE);	
-}
-
-int					keyCode_delete(char keyCode[], t_select select[], int x_pos)
-{
-	char			*tmp;
-
-	if (!keyCode)
-		return (FALSE);
-	select = NULL; // to remove
-	if (keyCode[0] == 127 && keyCode[1] == 91 && keyCode[2] == 66)
+	tmp = tgetstr("cm", 0);
+	tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
+	tmp = tgetstr("dl", 0);
+	tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
+	select[x_pos].is_show = FALSE;
+	if (select[x_pos].is_select)
 	{
-		tmp = tgetstr("dl", 0);
-		tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
+		select[x_pos].is_select = FALSE;
+		(*nb_select)--;
 	}
+	(*len)--;
 	return (TRUE);
 }
 
-int					keyboard_events(char keyCode[], t_select select[], int len)
+int					keyboard_events(char keycode[], t_select select[], int *len,
+	int *nb_select)
 {
 	int				lastpos;
 	static int		x = 0;
 
-	if (!keyCode)
+	if (!keycode)
 		return (FALSE);
-	// printf("%d\n", x);
-	if (keyCode[0] == 27)
+	lastpos = x;
+	if (keycode[0] == 27)
 	{
-		if (keyCode[1] == 91 && keyCode[2] == 70)
-			return (keyCode_esc(select, len));
-		lastpos = x;
-		if (keyCode[2] == 65)
-			x = (x > 0) ? x - 1 : len;
-		if (keyCode[2] == 66)
-			x = (x < len) ? x + 1 : 0;
-		keyCode_ctr(select, x, lastpos);
+		if (keycode[1] == 91 && keycode[2] == 70)
+			return (keycode_esc(select, *len));
+		if (keycode[2] == 65)
+			return (move_up(select, &x, lastpos, len));
+		if (keycode[2] == 66)
+			return (move_down(select, &x, lastpos, len));
 	}
-	else if (keyCode[0] == 127)
-		keyCode_delete(keyCode, select, x);
-	else if (keyCode[0] == 32)
-		keyCode_space(select, x);
-	return (TRUE);
+	else if (keycode[0] == 127)
+		keycode_delete(select, x, len, nb_select);
+	else if (keycode[0] == 32)
+		keycode_space(select, &x, nb_select, len);
+	else if (keycode[0] == 13 || keycode[0] == 10)
+		return (keycode_return(select, *len, nb_select));
+	return (*len);
 }
