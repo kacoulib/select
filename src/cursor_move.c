@@ -10,68 +10,71 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../select.h"
+#include "../ft_select.h"
 
-int					underline_and_deplace(t_select select[], int x_pos,
-	int lastpos)
+/*
+** Show the slect element underline if not selected otherwise de-select it.
+**
+** @return return FALSE if no line found else return true
+*/
+
+int					underline_and_deplace(t_select select[], t_term_info *t_info)
 {
-	char			*tmp;
-
-	if (!(tmp = tgetstr("cm", 0)))
-		return (FALSE);
-	tputs(tgoto(tmp, 0, lastpos), 0, display_on_screen);
-	toggle_underline(select, lastpos);
-	tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
-	toggle_underline(select, x_pos);
+	toggle_underline(select, t_info->last_pos);
+	toggle_underline(select, t_info->index);
+	t_info->last_pos = t_info->index;
 	return (TRUE);
 }
 
 /*
 ** Move the cursor one line below.
-** Loop un until he found a line
+** Loop un until it found a line
 **
 ** @return return FALSE if no line found else return true
 */
 
-int					move_down(t_select select[], int *x_pos, int lastpos,
-	int *len)
+int					move_down(t_select select[], t_term_info *t_info)
 {
 	int				start_index;
 
-	*x_pos = (*x_pos < *len) ? *x_pos : -1;
-	start_index = *x_pos;
-	while (*x_pos < *len)
+	t_info->y_pos = (t_info->y_pos < t_info->select_len) ? t_info->y_pos : -1;
+	start_index = t_info->y_pos;
+	while (t_info->y_pos < t_info->select_len)
 	{
-		(*x_pos)++;
-		if (*x_pos == start_index)
-			return (0);
-		if (select[*x_pos].is_show)
-			return (underline_and_deplace(select, *x_pos, lastpos));
+		t_info->y_pos++;
+		if (t_info->y_pos == start_index)
+			return (FALSE);
+		if (select[t_info->y_pos].is_show && (t_info->index = t_info->y_pos))
+			return (underline_and_deplace(select, t_info));
 	}
-	return (0);
+	return (FALSE);
 }
 
 /*
 ** Move the cursor one line above.
-** Loop un until he found a line
+** Loop un until it found a line
 **
 ** @return return FALSE if no line found else return true
 */
 
-int					move_up(t_select select[], int *x_pos, int lastpos,
-	int *len)
+int					move_up(t_select select[], t_term_info *t_info)
 {
+	int				i;
 	int				start_index;
 
-	*x_pos = (*x_pos > 0) ? *x_pos : *len + 1;
-	start_index = *x_pos;
-	while (*x_pos < (*len + 2) && *len)
+	t_info->y_pos = (t_info->y_pos > 0) ? t_info->y_pos : t_info->select_len + 1;
+	start_index = t_info->y_pos;
+	i = -1;
+	while (++i < t_info->select_len)
 	{
-		(*x_pos)--;
-		if (*x_pos == start_index)
-			return (0);
-		if (select[*x_pos].is_show)
-			return (underline_and_deplace(select, *x_pos, lastpos));
+	printf("\t\t\t\t\t\t\t%d %d %d\n", t_info->last_pos, t_info->index, i);
+		t_info->y_pos--;
+		// if (t_info->y_pos == start_index)
+		// 	return (FALSE);
+		// if (t_info->y_pos == 0)
+		// 	t_info->y_pos = t_info->select_len;
+		if (select[t_info->y_pos].is_show && (t_info->index = t_info->y_pos))
+			return (underline_and_deplace(select, t_info));
 	}
-	return (0);
+	return (FALSE);
 }

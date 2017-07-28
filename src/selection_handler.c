@@ -10,25 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../select.h"
+#include "../ft_select.h"
 
-/*
-** Create a single selection
-**
-** @return the new selection
-*/
-
-t_select		*create_selection(char *content)
+int			arr_len(char **arr)
 {
-	t_select	*new;
+	int				i;
 
-	if (!(new = malloc(sizeof(t_select) + 1)))
-		return (NULL);
-	new->content = ft_strdup(content);
-	new->is_select = FALSE;
-	new->is_underline = FALSE;
-	new->is_show = TRUE;
-	return (new);
+	if (!arr)
+		return (0);
+	i = -1;
+	while (arr[++i])
+		;
+	return (i);
 }
 
 /*
@@ -39,19 +32,8 @@ t_select		*create_selection(char *content)
 
 t_select		*delete_selection(t_select *head)
 {
-	// t_select	*tmp;
-
 	if (!head)
 		return (NULL);
-	// while (head)
-	// {
-	// 	tmp = head->next;
-	// 	if (head->content)
-	// 		free(head->content);
-	// 	break;
-	// 	free(head); // @todo: can't free the current selection
-	// 	head = tmp;
-	// }
 	return (head);
 }
 
@@ -61,19 +43,38 @@ t_select		*delete_selection(t_select *head)
 ** @return return the top head of created selection
 */
 
-t_select		*init_selection(char **av, t_select list[])
+void		init_selection(char **av, t_select list[])
 {
 	int			i;
-	int			*nb_select;
-	t_select	*current;
 
 	i = -1;
-	nb_select = 0;
 	while (av[++i])
 	{
-		if (!(current = create_selection(av[i])))
-			return (NULL);
-		list[i] = *current;
+		list[i].content = ft_strdup(av[i]);
+		list[i].is_select = FALSE;
+		list[i].is_underline = FALSE;
+		list[i].is_show = TRUE;
 	}
-	return (list);
+}
+
+/*
+**
+**
+** @return return the top head of created term_info
+*/
+
+t_term_info		*init_term_info(char **av)
+{
+	t_term_info		*new_term_info;
+
+
+	if (!(new_term_info = malloc(sizeof(t_term_info) + 1)))
+		return (NULL);
+	new_term_info->index = 0;
+	new_term_info->last_pos = 0;
+	new_term_info->nb_select = 0;
+	new_term_info->select_len = arr_len(av) - 1;
+	new_term_info->x_pos = 0;
+	new_term_info->y_pos = 0;
+	return (new_term_info);
 }

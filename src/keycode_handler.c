@@ -10,92 +10,79 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../select.h"
+#include "../ft_select.h"
 
-int					keycode_return(t_select select[], int len, int *nb_select)
+int					display_result(t_select select[], t_term_info *term_info)
 {
 	int				i;
+	char			*tmp;
 
+	if (!term_info->nb_select)
+		return (0);
+	if (!(tmp = tgetstr("cm", 0)))
+		return (FALSE);
+	tputs(tgoto(tmp, 0, term_info->select_len + 1), 0, display_on_screen);
 	i = -1;
-	while (++i < len)
+	while (++i < term_info->select_len + 1)
 	{
 		if (select[i].is_select)
 		{
 			ft_putstr(select[i].content);
-			if (--(*nb_select) > 0)
+			if (--(term_info->nb_select) > 0)
 				ft_putstr(" ");
 		}
 	}
 	ft_putchar('\n');
-	return (0);
-}
-
-int					keycode_space(t_select select[], int *x_pos, int *nb_select,
-	int *len)
-{
-	if (select[*x_pos].is_select && (select[*x_pos].is_select = FALSE))
-		(*nb_select)--;
-	else if ((select[*x_pos].is_select = TRUE))
-		(*nb_select)++;
-	move_down(select, x_pos, *x_pos, len);
 	return (1);
 }
 
-int					keycode_esc(t_select select[], int len)
+int					keycode_space(t_select select[], t_term_info *t_info)
 {
-	int				i;
-
-	if (!select)
-		return (FALSE);
-	i = -1;
-	while (++i < len)
-		if (select[i].is_select)
-			ft_putstr(select[i].content);
-	return (FALSE);
+	if (select[t_info->y_pos].is_select && !(select[t_info->y_pos].is_select = FALSE))
+		t_info->nb_select--;
+	else if ((select[t_info->y_pos].is_select = TRUE))
+		t_info->nb_select++;
+	move_down(select, t_info);
+	return (1);
 }
 
-int					keycode_delete(t_select select[], int x_pos, int *len,
-	int *nb_select)
+int					keycode_delete(t_select select[], t_term_info *t_info)
 {
 	char			*tmp;
 
 	tmp = tgetstr("cm", 0);
-	tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
+	tputs(tgoto(tmp, 0, t_info->y_pos), 0, display_on_screen);
 	tmp = tgetstr("dl", 0);
-	tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
-	select[x_pos].is_show = FALSE;
-	if (select[x_pos].is_select)
+	tputs(tgoto(tmp, 0, t_info->y_pos), 0, display_on_screen);
+	select[t_info->y_pos].is_show = FALSE;
+	if (select[t_info->y_pos].is_select)
 	{
-		select[x_pos].is_select = FALSE;
-		(*nb_select)--;
+		select[t_info->y_pos].is_select = FALSE;
+		t_info->nb_select--;
 	}
-	(*len)--;
+	t_info->select_len--;
 	return (TRUE);
 }
 
-int					keyboard_events(char keycode[], t_select select[], int *len,
-	int *nb_select)
+int					keyboard_events(char keycode[], t_select select[], t_term_info *t_info)
 {
-	int				lastpos;
-	static int		x = 0;
-
 	if (!keycode)
 		return (FALSE);
-	lastpos = x;
+
 	if (keycode[0] == 27)
 	{
-		if (keycode[1] == 91 && keycode[2] == 70)
-			return (keycode_esc(select, *len));
-		if (keycode[2] == 65)
-			return (move_up(select, &x, lastpos, len));
 		if (keycode[2] == 66)
-			return (move_down(select, &x, lastpos, len));
+			return (move_down(select, t_info));
+		else if (keycode[2] == 65)
+			return (move_up(select, t_info));
+		else
+			return (0);
 	}
 	else if (keycode[0] == 127)
-		keycode_delete(select, x, len, nb_select);
+		keycode_delete(select, t_info);
 	else if (keycode[0] == 32)
-		keycode_space(select, &x, nb_select, len);
+		keycode_space(select, t_info);
 	else if (keycode[0] == 13 || keycode[0] == 10)
-		return (keycode_return(select, *len, nb_select));
-	return (*len);
+		return (0);
+	return (1);
 }

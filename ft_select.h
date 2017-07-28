@@ -10,33 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SELLECT
-# define SELLECT
-
-# ifdef unix
-	static char TERM_BUFF[2048];
-# else
-	# define TERM_BUFF 0
-# endif
+#ifndef FT_SELECT
+# define FT_SELECT
 
 # include "lib/libft/libft.h"
 # include <unistd.h>
+# include <stdio.h> // To remove
 # include <signal.h>
 # include <fcntl.h>
-# include <errno.h> // to remove
 # include <sys/ioctl.h>
 # include <termios.h>
 # include <term.h>
 
-# include <stdio.h> // to remove
-
 # define FALSE 0
 # define TRUE 1
 # define PATH_MAX 3
-# define ANSI_COLOR_CYAN	"\x1B[36m"
-# define ANSI_COLOR_RESET	"\x1B[0m"
 
-typedef struct 			s_select
+typedef struct			s_select
 {
 	char				*content;
 	int					is_select;
@@ -45,26 +35,40 @@ typedef struct 			s_select
 	int					*nb_select;
 }						t_select;
 
+typedef struct			s_term_info
+{
+	int					index;
+	int					last_pos;
+	int					nb_select;
+	int					select_len;
+	int					x_pos;
+	int					y_pos;
+}						t_term_info;
+
 int						arr_len(char **arr);
-t_select				*create_selection(char *content);
 t_select				*delete_selection(t_select *head);
 int						display_on_screen(int c);
-// int						display_with_video_mode(t_select select[], int *x_pos,
-	// int lastpos, int *len);
+int						display_result(t_select select[], t_term_info *term_info);
+int						handle_signal();
+void					init_selection(char **av, t_select list[]);
+int						init_screen(t_select select[], t_term_info *term_info);
+t_term_info				*init_term_info(char **av);
 
-t_select				*init_selection(char **av, t_select list[]);
-int						keyboard_events(char keyCode[], t_select select[],
-	int *len, int *nb_select);
-int						keyCode_delete(t_select select[], int x_pos, int *len,
-	int *nb_select);
-int						move_down(t_select select[], int *x_pos, int lastpos,
-	int *len);
-int						move_up(t_select select[], int *x_pos, int lastpos,
-	int *len);
-int						toggle_underline(t_select select[], int x_pos);
-int						underline_and_deplace(t_select select[], int x_pos,
-	int lastpos);
 
+int						keyboard_events(char keycode[], t_select select[], t_term_info *term_info);
+int						keycode_delete(t_select select[], t_term_info *term_info);
+int						move_down(t_select select[], t_term_info *term_info);
+int						move_up(t_select select[], t_term_info *term_info);
+int						reset_term(struct termios *term);
+// void					termination_handler(int signum);
+
+int						toggle_underline(t_select select[], int y);
+int						underline_and_deplace(t_select select[], t_term_info *term_info);
+
+int						set_cannic_mode(struct termios *term);
+
+int						reset_term(struct termios *term);
+struct	termios			*get_terminal();
 
 
 #endif

@@ -10,74 +10,104 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../select.h"
+#include "../ft_select.h"
 
+/*
+** Active the revese-video mode if the element is select
+**
+** @return TRUE on sucess otherwhise return FALSE
+*/
 
-int				active_highlight(t_select select[], int x_pos)
+int				active_highlight(t_select select[], int y_pos)
 {
 	char		*tmp;
 
-	if (select[x_pos].is_select)
+	if (select[y_pos].is_select)
 	{
-		if (!(tmp = tgetstr("so", 0))) // activate standout mode
+		if (!(tmp = tgetstr("so", 0)))
 			return (FALSE);
 		tputs(tmp, 0, display_on_screen);
-		if (!(tmp = tgetstr("mr", 0))) // reverse video
+		if (!(tmp = tgetstr("mr", 0)))
 			return (FALSE);
 		tputs(tmp, 0, display_on_screen);
-		ft_putstr(select[x_pos].content);
 	}
-	// tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
-	// ft_putstr(select[x_pos].content);
-	if (!(tmp = tgetstr("se", 0))) // desactivate standout mode
-		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
-	return (1);
+	else
+	{
+		if (!(tmp = tgetstr("se", 0)))
+			return (FALSE);
+		tputs(tmp, 0, display_on_screen);
+	}
+	return (TRUE);
 }
 
-int					display_on_screen(int c)
+int				display_on_screen(int c)
 {
 	if (!write(1, &c, 1))
 		return (0);
-	return (1);
+	return (TRUE);
 }
 
-int					display_with_video_mode(t_select select[], int *x_pos,
-	int lastpos, int *len)
+/*
+** Initialise the scren by
+** 1. clear
+** 2. change the terminal mode
+** 3. hide the cursor
+** 4. Position the cursor at the top and undeline the first element
+**
+** @return TRUE on sucess otherwhise return FALSE
+*/
+
+int				init_screen(t_select select[], t_term_info *t_info)
 {
 	char			*tmp;
+	int				i;
 
-	if (!(tmp = tgetstr("so", 0))) // activate standout mode
+	if (!(tmp = tgetstr("cl", 0)))
 		return (FALSE);
 	tputs(tmp, 0, display_on_screen);
-	if (!(tmp = tgetstr("mr", 0))) // reverse video
+	if (!(tmp = tgetstr("ti", 0)))
 		return (FALSE);
 	tputs(tmp, 0, display_on_screen);
-	ft_putstr(select[*x_pos].content);
-	if (!(tmp = tgetstr("se", 0))) // desactivate standout mode
+	if (!(tmp = tgetstr("vi", 0)))
 		return (FALSE);
 	tputs(tmp, 0, display_on_screen);
-	return (move_up(select, x_pos, lastpos, len));
+	i = -1;
+	while (++i < (t_info->select_len + 1))
+		ft_putendl(select[i].content);
+	if (!(tmp = tgetstr("cm", 0)))
+		return (FALSE);
+	toggle_underline(select, 0);
+	return (TRUE);
 }
 
-int				toggle_underline(t_select select[], int x_pos)
+/*
+** Toggle the selection on an element
+** If the element was selected, deselect-it OR it was deselected, select-it
+**
+** @return TRUE on sucess otherwhise return FALSE
+*/
+
+int				toggle_underline(t_select select[], int y_pos)
 {
 	char		*tmp;
 
-	if (select[x_pos].is_underline)
+	if (select[y_pos].is_underline)
 	{
 		if (!(tmp = tgetstr("ue", 0)))
 			return (FALSE);
-		select[x_pos].is_underline = FALSE;
+		select[y_pos].is_underline = FALSE;
 	}
 	else
 	{
 		if (!(tmp = tgetstr("us", 0)))
 			return (FALSE);
-		select[x_pos].is_underline = TRUE;
+		select[y_pos].is_underline = TRUE;
 	}
-	tputs(tgoto(tmp, 0, x_pos), 0, display_on_screen);
-	active_highlight(select, x_pos);
-	ft_putstr(select[x_pos].content);
-	return (1);
+	tputs(tmp, 0, display_on_screen);
+	if (!(tmp = tgetstr("cm", 0)))
+		return (FALSE);
+	tputs(tgoto(tmp, 0, y_pos), 0, display_on_screen);
+	active_highlight(select, y_pos);
+	ft_putstr(select[y_pos].content);
+	return (TRUE);
 }
