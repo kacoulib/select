@@ -37,6 +37,7 @@ int					resize_handle(t_term_info *t_info)
 			ft_putendl("Sorry but the screen is too small");
 		}
 	}
+	// printf("%d\n", t_info->select_len);
 	return (TRUE);
 }
 
@@ -46,12 +47,14 @@ int					resize_handle(t_term_info *t_info)
 ** @return return the top head of created term_info
 */
 
-t_term_info			*init_term_info(char **av)
+t_term_info			*get_or_init_term(char **av, struct termios	*term)
 {
 	int				i;
 	int				tmp;
-	t_term_info		*new_term_info;
+	static t_term_info		*new_term_info = NULL;
 
+	if (new_term_info)
+		return (new_term_info);
 	tmp = 0;
 	i = -1;
 	while (av[++i])
@@ -67,6 +70,7 @@ t_term_info			*init_term_info(char **av)
 	new_term_info->y_pos = 0;
 	new_term_info->col_max_width = tmp;
 	new_term_info->nb_col = 0;
+	new_term_info->term = term;
 	if (!resize_handle(new_term_info))
 		return (FALSE);
 	return (new_term_info);

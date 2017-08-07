@@ -13,16 +13,15 @@
 #ifndef FT_SELECT
 # define FT_SELECT
 
-// # include "includes/libft.h"
+# include "libft.h"
 # include <unistd.h>
-# include <stdio.h> // To remove
+# include <stdio.h> // to remove
 # include <signal.h>
 # include <fcntl.h>
 # include <sys/ioctl.h>
 # include <termios.h>
 # include <curses.h>
 # include <term.h>
-# include "libft.h"
 # define FALSE 0
 # define TRUE 1
 # define PATH_MAX 3
@@ -46,32 +45,32 @@ typedef struct			s_term_info
 	int					y_pos;
 	int					col_max_width;
 	int					nb_col;
+	struct termios	*term;
 }						t_term_info;
 
 int						arr_len(char **arr);
 t_select				*delete_selection(t_select *head);
 int						display_on_screen(int c);
-int						display_result(t_select select[], t_term_info *term_info);
-int						handle_signal();
+int						display_result(t_select select[],
+	t_term_info *term_info);
+int						signal_handler();
 void					init_selection(char **av, t_select list[]);
 int						init_screen(t_select select[], t_term_info *term_info);
-t_term_info				*init_term_info(char **av);
-
-
-int						keyboard_events(char keycode[], t_select select[], t_term_info *term_info);
-int						keycode_delete(t_select select[], t_term_info *term_info);
+t_term_info				*get_or_init_term(char **av, struct termios	*term);
+int						keyboard_events(char keycode[], t_select select[],
+	t_term_info *term_info);
+int						keycode_delete(t_select select[],
+	t_term_info *term_info);
 int						move_down(t_select select[], t_term_info *term_info);
 int						move_up(t_select select[], t_term_info *term_info);
 int						reset_term(struct termios *term);
-// void					termination_handler(int signum);
-
-int						toggle_underline(t_select select, int y_pos);
-int						underline_and_deplace(t_select select[], t_term_info *term_info);
-
+int						toggle_underline(t_select select[], int index,
+	int y_pos);
+int						underline_and_deplace(t_select select[],
+	t_term_info *term_info);
 int						set_cannic_mode(struct termios *term);
-
 int						reset_term(struct termios *term);
-struct	termios			*get_terminal();
-
+struct termios			*get_terminal();
+int						resize_handle(t_term_info *t_info);
 
 #endif

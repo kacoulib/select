@@ -76,7 +76,7 @@ int				init_screen(t_select select[], t_term_info *t_info)
 		ft_putendl(select[i].content);
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
-	toggle_underline(select[0], 0);
+	toggle_underline(select, 0, 0);
 	return (TRUE);
 }
 
@@ -87,27 +87,27 @@ int				init_screen(t_select select[], t_term_info *t_info)
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				toggle_underline(t_select select, int y_pos)
+int				toggle_underline(t_select select[], int index, int y_pos)
 {
 	char		*tmp;
 
-	if (select.is_underline)
+	if (select[index].is_underline)
 	{
 		if (!(tmp = tgetstr("ue", 0)))
 			return (FALSE);
-		select.is_underline = FALSE;
+		select[index].is_underline = FALSE;
 	}
 	else
 	{
 		if (!(tmp = tgetstr("us", 0)))
 			return (FALSE);
-		select.is_underline = TRUE;
+		select[index].is_underline = TRUE;
 	}
 	tputs(tmp, 0, display_on_screen);
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
 	tputs(tgoto(tmp, 0, y_pos), 0, display_on_screen);
-	active_highlight(select);
-	ft_putstr(select.content);
+	active_highlight(select[index]);
+	ft_putstr(select[index].content);
 	return (TRUE);
 }

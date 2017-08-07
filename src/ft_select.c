@@ -39,12 +39,11 @@ int					main(int ac, char **av)
 	term = get_terminal();
 	if (!set_cannic_mode(term))
 		return (FALSE);
-	if (!(t_info = init_term_info(av)))
+	if (!(t_info = get_or_init_term(av, term)))
 		return (FALSE);
-return (FALSE);
 	ft_bzero(select_list, t_info->select_len);
 	init_selection(av, select_list);
-	handle_signal();
+	signal_handler();
 	read_term(select_list, t_info);
 	display_result(select_list, t_info);
 	return (FALSE);
