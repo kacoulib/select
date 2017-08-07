@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_select.h"
+#include "ft_select.h"
 
 int					display_result(t_select select[], t_term_info *term_info)
 {
@@ -51,13 +51,13 @@ int					keycode_delete(t_select select[], t_term_info *t_info)
 	char			*tmp;
 
 	tmp = tgetstr("cm", 0);
-	tputs(tgoto(tmp, 0, t_info->y_pos), 0, display_on_screen);
+	tputs(tgoto(tmp, 0, t_info->index), 0, display_on_screen);
 	tmp = tgetstr("dl", 0);
-	tputs(tgoto(tmp, 0, t_info->y_pos), 0, display_on_screen);
-	select[t_info->y_pos].is_show = FALSE;
-	if (select[t_info->y_pos].is_select)
+	tputs(tgoto(tmp, 0, t_info->index), 0, display_on_screen);
+	select[t_info->index].is_show = FALSE;
+	if (select[t_info->index].is_select)
 	{
-		select[t_info->y_pos].is_select = FALSE;
+		select[t_info->index].is_select = FALSE;
 		t_info->nb_select--;
 	}
 	t_info->select_len--;

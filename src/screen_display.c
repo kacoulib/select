@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_select.h"
+#include "ft_select.h"
 
 /*
 ** Active the revese-video mode if the element is select
@@ -18,11 +18,11 @@
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				active_highlight(t_select select[], int y_pos)
+int				active_highlight(t_select select)
 {
 	char		*tmp;
 
-	if (select[y_pos].is_select)
+	if (select.is_select)
 	{
 		if (!(tmp = tgetstr("so", 0)))
 			return (FALSE);
@@ -76,7 +76,7 @@ int				init_screen(t_select select[], t_term_info *t_info)
 		ft_putendl(select[i].content);
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
-	toggle_underline(select, 0);
+	toggle_underline(select[0], 0);
 	return (TRUE);
 }
 
@@ -87,27 +87,27 @@ int				init_screen(t_select select[], t_term_info *t_info)
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				toggle_underline(t_select select[], int y_pos)
+int				toggle_underline(t_select select, int y_pos)
 {
 	char		*tmp;
 
-	if (select[y_pos].is_underline)
+	if (select.is_underline)
 	{
 		if (!(tmp = tgetstr("ue", 0)))
 			return (FALSE);
-		select[y_pos].is_underline = FALSE;
+		select.is_underline = FALSE;
 	}
 	else
 	{
 		if (!(tmp = tgetstr("us", 0)))
 			return (FALSE);
-		select[y_pos].is_underline = TRUE;
+		select.is_underline = TRUE;
 	}
 	tputs(tmp, 0, display_on_screen);
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
 	tputs(tgoto(tmp, 0, y_pos), 0, display_on_screen);
-	active_highlight(select, y_pos);
-	ft_putstr(select[y_pos].content);
+	active_highlight(select);
+	ft_putstr(select.content);
 	return (TRUE);
 }

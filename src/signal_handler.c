@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_select.h"
+#include "ft_select.h"
 
 static void						termination_handler(int signum)
 {

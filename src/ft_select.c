@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./ft_select.h"
+#include "ft_select.h"
 
 
 int					read_term(t_select select[], t_term_info *t_info)

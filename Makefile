@@ -10,22 +10,41 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME =  select
-HEADERS	= select.h
-LIBRARY	= -lncurses
-SOURCES = src/select.c
-OBJ	= $(SOURCES:.c=.o)
-FLAGS	= -Wall -Werror -Wextra
+CC      	=   gcc
+RM      	=   rm -f
+CFLAGS  	=  -Wall -Werror -Wextra
+LIB			=	-L./lib/libft -lft -lncurses
+NAME    	=   ft_select
+CPPFLAGS	= 	-Iincludes
+SRCS		=   src/cursor_move.c \
+				src/keycode_handler.c \
+				src/screen_display.c \
+				src/selection_handler.c \
+				src/signal_handler.c \
+				src/terminal_handler.c \
+				src/ft_select.c
 
-all: $(NAME)
+OBJS    	=   $(SRCS:.c=.o)
 
-$(NAME):
-		gcc $(FLAGS) -c $(HEADERS) $(SOURCES)
-		ar rc $(NAME) $(OBJ)
-		ranlib $(NAME)
-clean : 
-	rm -rf $(OBJ)
+all:        $(NAME)
 
-fclean : clean
-	rm -rf $(NAME)
-re : fclean all
+$(NAME):    $(OBJS)
+			Make -C ./lib/libft
+			$(CC) -o $(NAME) $(OBJS) $(LIB) $(CPPFLAGS)
+
+clean:
+			$(RM) $(OBJS)
+			Make -C ./lib/libft fclean
+
+fclean:		clean
+			$(RM) $(NAME)
+
+re:			fclean all
+
+push:
+			@git add .
+			@echo "Enter Your Commit :"
+			@read var1 ; git commit -m "$$var1"
+			@git push
+
+.PHONY:		all clean fclean re push

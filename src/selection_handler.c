@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+	/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   selection_handler.c                                :+:      :+:    :+:   */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_select.h"
+#include "ft_select.h"
 
 int			arr_len(char **arr)
 {
@@ -55,26 +55,4 @@ void		init_selection(char **av, t_select list[])
 		list[i].is_underline = FALSE;
 		list[i].is_show = TRUE;
 	}
-}
-
-/*
-**
-**
-** @return return the top head of created term_info
-*/
-
-t_term_info		*init_term_info(char **av)
-{
-	t_term_info		*new_term_info;
-
-
-	if (!(new_term_info = malloc(sizeof(t_term_info) + 1)))
-		return (NULL);
-	new_term_info->index = 0;
-	new_term_info->last_pos = 0;
-	new_term_info->nb_select = 0;
-	new_term_info->select_len = arr_len(av) - 1;
-	new_term_info->x_pos = 0;
-	new_term_info->y_pos = 0;
-	return (new_term_info);
 }

@@ -13,15 +13,16 @@
 #ifndef FT_SELECT
 # define FT_SELECT
 
-# include "lib/libft/libft.h"
+// # include "includes/libft.h"
 # include <unistd.h>
 # include <stdio.h> // To remove
 # include <signal.h>
 # include <fcntl.h>
 # include <sys/ioctl.h>
 # include <termios.h>
+# include <curses.h>
 # include <term.h>
-
+# include "libft.h"
 # define FALSE 0
 # define TRUE 1
 # define PATH_MAX 3
