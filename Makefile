@@ -45,6 +45,7 @@ push:
 			@git add .
 			@echo "Enter Your Commit :"
 			@read var1 ; git commit -m "$$var1"
-			@git push
+			@echo "Enter The origin :"
+			@read var2 ;  @git push origin "$$var2"
 
 .PHONY:		all clean fclean re push
