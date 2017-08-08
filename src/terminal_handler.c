@@ -29,15 +29,16 @@ int					resize_handle(t_term_info *t_info)
 
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0)
 		return (FALSE);
+	t_info->height = w.ws_row - 2;
+	t_info->width = w.ws_col - 2;
 	if (t_info->select_len > w.ws_row)
 	{
-		t_info->nb_col = w.ws_col / t_info->col_max_width;
+		t_info->nb_col = w.ws_col / t_info->col_space;
 		if ((t_info->select_len / t_info->nb_col) > w.ws_row)
 		{
 			ft_putendl("Sorry but the screen is too small");
 		}
 	}
-	// printf("%d\n", t_info->select_len);
 	return (TRUE);
 }
 
@@ -68,7 +69,7 @@ t_term_info			*get_or_init_term(char **av, struct termios	*term)
 	new_term_info->select_len = arr_len(av) - 1;
 	new_term_info->x_pos = 0;
 	new_term_info->y_pos = 0;
-	new_term_info->col_max_width = tmp;
+	new_term_info->col_space = tmp + 3;
 	new_term_info->nb_col = 0;
 	new_term_info->term = term;
 	if (!resize_handle(new_term_info))
@@ -83,18 +84,20 @@ int					reset_term(struct termios *term)
 	if (tcgetattr(0, term) == -1)
 		return (FALSE);
 	term->c_lflag = (ICANON | ECHO | ISIG);
+	term->c_cc[VMIN] = 1;
+	term->c_cc[VTIME] = 100;
 	if (!(tmp = tgetstr("te", 0)))
 		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
+	tputs(tmp, 0, tputs_display_function);
 	if (!(tmp = tgetstr("ve", 0)))
 		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
+	tputs(tmp, 0, tputs_display_function);
 	if (!(tmp = tgetstr("se", 0))) 
 		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
+	tputs(tmp, 0, tputs_display_function);
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
-	tputs(tmp, 0, display_on_screen);
+	tputs(tmp, 0, tputs_display_function);
 	if (tcsetattr(0, TCSADRAIN, term) < 0)
 		return (FALSE);
 	return (TRUE);

@@ -13,20 +13,6 @@
 #include "ft_select.h"
 
 /*
-** Show the slect element underline if not selected otherwise de-select it.
-**
-** @return return FALSE if no line found else return true
-*/
-
-// int					underline_and_deplace(t_select select[], t_term_info *t_info)
-// {
-// 	toggle_underline(select, t_info->last_pos);
-// 	toggle_underline(select, t_info->index);
-// 	t_info->last_pos = t_info->index;
-// 	return (TRUE);
-// }
-
-/*
 ** Move the cursor one line below.
 ** Loop un until it found a line
 **

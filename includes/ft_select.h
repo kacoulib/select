@@ -29,10 +29,10 @@
 typedef struct			s_select
 {
 	char				*content;
+	int					id;
 	int					is_select;
 	int					is_show;
 	int					is_underline;
-	int					*nb_select;
 }						t_select;
 
 typedef struct			s_term_info
@@ -43,14 +43,18 @@ typedef struct			s_term_info
 	int					select_len;
 	int					x_pos;
 	int					y_pos;
-	int					col_max_width;
+	int					col_space;
+	int					height;
+	int					width;
 	int					nb_col;
 	struct termios	*term;
 }						t_term_info;
 
 int						arr_len(char **arr);
 t_select				*delete_selection(t_select *head);
-int						display_on_screen(int c);
+int						display_on_screen(t_select select);
+
+int						tputs_display_function(int c);
 int						display_result(t_select select[],
 	t_term_info *term_info);
 int						signal_handler();

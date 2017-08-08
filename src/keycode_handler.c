@@ -21,7 +21,7 @@ int					display_result(t_select select[], t_term_info *term_info)
 		return (0);
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
-	tputs(tgoto(tmp, 0, term_info->select_len + 1), 0, display_on_screen);
+	tputs(tgoto(tmp, 0, term_info->select_len + 1), 0, tputs_display_function);
 	i = -1;
 	while (++i < term_info->select_len + 1)
 	{
@@ -51,9 +51,9 @@ int					keycode_delete(t_select select[], t_term_info *t_info)
 	char			*tmp;
 
 	tmp = tgetstr("cm", 0);
-	tputs(tgoto(tmp, 0, t_info->index), 0, display_on_screen);
+	tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
 	tmp = tgetstr("dl", 0);
-	tputs(tgoto(tmp, 0, t_info->index), 0, display_on_screen);
+	tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
 	select[t_info->index].is_show = FALSE;
 	if (select[t_info->index].is_select)
 	{

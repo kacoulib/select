@@ -50,7 +50,8 @@ void		init_selection(char **av, t_select list[])
 	i = -1;
 	while (av[++i])
 	{
-		list[i].content = ft_strdup(av[i]);
+		list[i].content = av[i];
+		list[i].id = i;
 		list[i].is_select = FALSE;
 		list[i].is_underline = FALSE;
 		list[i].is_show = TRUE;

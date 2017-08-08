@@ -25,6 +25,7 @@ int					read_term(t_select select[], t_term_info *t_info)
 			break;
 		}
 	}
+	// sleep(5);
 	return (reset_term(get_terminal()));
 }
 
