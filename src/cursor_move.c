@@ -37,8 +37,8 @@ int					move_down(t_select select[], t_term_info *t_info)
 			break;
 	}
 	t_info->y_pos = (t_info->y_pos != t_info->select_len) ? t_info->y_pos + 1 : 0;
-	toggle_underline(select, last_index, last_y_pos);
-	toggle_underline(select, t_info->index, t_info->y_pos);
+	toggle_underline(&select[last_index]);
+	toggle_underline(&select[t_info->index]);
 	t_info->last_pos = t_info->y_pos;
 	return (TRUE);
 }
@@ -68,8 +68,8 @@ int					move_up(t_select select[], t_term_info *t_info)
 			break;
 	}
 	t_info->y_pos = (t_info->y_pos != 0) ? t_info->y_pos - 1: t_info->select_len;
-	toggle_underline(select, last_index, last_y_pos);
-	toggle_underline(select, t_info->index, t_info->y_pos);
+	toggle_underline(&select[last_index]);
+	toggle_underline(&select[t_info->index]);
 	t_info->last_pos = t_info->y_pos;
 	return (TRUE);
 }

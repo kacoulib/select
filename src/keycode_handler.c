@@ -50,25 +50,30 @@ int					keycode_delete(t_select select[], t_term_info *t_info)
 {
 	char			*tmp;
 
-	tmp = tgetstr("cm", 0);
-	tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
-	tmp = tgetstr("dl", 0);
-	tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
+	if (!(tmp = tgetstr("cl", 0)))
+		return (FALSE);
+	tputs(tmp, 0, tputs_display_function);
+	// tmp = tgetstr("cm", 0);
+	// tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
+	// tmp = tgetstr("dl", 0);
+	// tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
 	select[t_info->index].is_show = FALSE;
 	if (select[t_info->index].is_select)
 	{
 		select[t_info->index].is_select = FALSE;
 		t_info->nb_select--;
 	}
-	t_info->select_len--;
-	return (TRUE);
+	display_all_elem(select, t_info);
+
+	if (t_info->nb_deleted++ == t_info->select_len)
+		return (FALSE);
+	return (move_down(select, t_info));
 }
 
 int					keyboard_events(char keycode[], t_select select[], t_term_info *t_info)
 {
 	if (!keycode)
 		return (FALSE);
-
 	if (keycode[0] == 27)
 	{
 		if (keycode[2] == 66)
@@ -79,7 +84,7 @@ int					keyboard_events(char keycode[], t_select select[], t_term_info *t_info)
 			return (0);
 	}
 	else if (keycode[0] == 127)
-		keycode_delete(select, t_info);
+		return(keycode_delete(select, t_info));
 	else if (keycode[0] == 32)
 		keycode_space(select, t_info);
 	else if (keycode[0] == 13 || keycode[0] == 10)

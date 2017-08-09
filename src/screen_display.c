@@ -58,7 +58,7 @@ int				tputs_display_function(int c)
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				init_screen(t_select select[], t_term_info *t_info)
+int				display_all_elem(t_select select[], t_term_info *t_info)
 {
 	char			*tmp;
 	int				i;
@@ -66,16 +66,16 @@ int				init_screen(t_select select[], t_term_info *t_info)
 	if (!(tmp = tgetstr("cl", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
-	if (!(tmp = tgetstr("ti", 0)))
-		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
-	if (!(tmp = tgetstr("vi", 0)))
-		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
 	i = -1;
 	while (++i < (t_info->select_len + 1))
-		display_on_screen(select[i]);
-	toggle_underline(select, 0, 0);
+		display_single_elem(select[i]);
+	i = -1;
+	while (++i < t_info->select_len && !select[i].is_show)
+		;
+	toggle_underline(&select[i]);
+	if (!(tmp = tgetstr("ue", 0)))
+		return (FALSE);
+	tputs(tmp, 0, tputs_display_function);
 	return (TRUE);
 }
 
@@ -86,50 +86,38 @@ int				init_screen(t_select select[], t_term_info *t_info)
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				toggle_underline(t_select select[], int index, int y_pos)
+int				toggle_underline(t_select *select)
 {
 	char		*tmp;
 
-	if (select[index].is_underline)
+	if (select->is_underline)
 	{
 		if (!(tmp = tgetstr("ue", 0)))
 			return (FALSE);
-		select[index].is_underline = FALSE;
+		select->is_underline = FALSE;
 	}
 	else
 	{
 		if (!(tmp = tgetstr("us", 0)))
 			return (FALSE);
-		select[index].is_underline = TRUE;
+		select->is_underline = TRUE;
 	}
 	tputs(tmp, 0, tputs_display_function);
-	if (!(tmp = tgetstr("cm", 0)))
-		return (FALSE);
-	tputs(tgoto(tmp, 0, y_pos), 0, tputs_display_function);
-	active_highlight(select[index]);
-	ft_putstr(select[index].content);
-	return (TRUE);
+	return (display_single_elem(*select));
 }
 
-int				display_on_screen(t_select select)
+int				display_single_elem(t_select select)
 {
-	char		*tmp;
-	int			x;
-	int			y;
 	t_term_info *term;
+	char		*tmp;
 
+	if (!select.is_show) // to remove
+		return (TRUE);
 	term = get_or_init_term(NULL, NULL);
-	x = 0;
-	y = select.id;
-	if (select.id > term->height)
-		x = select.id / term->height;
-	if (x > 0)
-		y = (y - (term->height * x)) - 1;
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
-	tputs(tgoto(tmp, term->col_space * x, y), 0, tputs_display_function);
+	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);
 	active_highlight(select);
-	ft_putendl(select.content);
-	// printf("%s (%d)\n", select.content, y);
-	return (1);
+	ft_putstr(select.content);
+	return (TRUE);
 }

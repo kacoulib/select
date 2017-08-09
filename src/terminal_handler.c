@@ -21,12 +21,13 @@ struct	termios		*get_terminal(void)
 	return (term);
 }
 
-int					resize_handle(t_term_info *t_info)
+int					update_screen_info(void)
 {
 
 	struct winsize 	w;
+	t_term_info		*t_info;
 
-
+	t_info = get_or_init_term(NULL, NULL);
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0)
 		return (FALSE);
 	t_info->height = w.ws_row - 2;
@@ -35,9 +36,7 @@ int					resize_handle(t_term_info *t_info)
 	{
 		t_info->nb_col = w.ws_col / t_info->col_space;
 		if ((t_info->select_len / t_info->nb_col) > w.ws_row)
-		{
 			ft_putendl("Sorry but the screen is too small");
-		}
 	}
 	return (TRUE);
 }
@@ -66,13 +65,14 @@ t_term_info			*get_or_init_term(char **av, struct termios	*term)
 	new_term_info->index = 0;
 	new_term_info->last_pos = 0;
 	new_term_info->nb_select = 0;
+	new_term_info->nb_deleted = 0;
 	new_term_info->select_len = arr_len(av) - 1;
 	new_term_info->x_pos = 0;
 	new_term_info->y_pos = 0;
 	new_term_info->col_space = tmp + 3;
 	new_term_info->nb_col = 0;
 	new_term_info->term = term;
-	if (!resize_handle(new_term_info))
+	if (!update_screen_info())
 		return (FALSE);
 	return (new_term_info);
 }

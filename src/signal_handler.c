@@ -45,7 +45,7 @@ static void						handle_signal(int signum)
 
 	term = get_or_init_term(NULL, NULL);
 	if (signum == SIGWINCH)
-		resize_handle(term);
+		update_screen_info();
 	else if (signum == SIGCONT)
 		continue_signal(term);
 	else if (signum == SIGINT)
@@ -61,7 +61,8 @@ static void						handle_signal(int signum)
 	else if (signum == SIGSTOP)
 		kill_signal(term);
 	else
-		ft_putstr("This signal has been captured but not handler :(");
+		printf("This %d signal has been captured but not handler :(", signum);
+		// ft_putstr("This signal has been captured but not handler :(");
 }
 
 int						signal_handler(void)
