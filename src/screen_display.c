@@ -49,30 +49,29 @@ int				tputs_display_function(int c)
 
 /*
 ** Initialise the scren by
+** 0. Remove the underline
 ** 1. Clear
-** 2. Change the terminal mode
-** 3. Hide the cursor
-** 4. Print all selection on the screen
-** 5. Position the cursor at the top and undeline the first element
+** 2. Print all selection on the screen
+** 3. Underline the current element
 **
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				display_all_elem(t_select select[], t_term_info *t_info)
+int				display_all_elem(t_term_info *t_info, t_select select[])
 {
-	char			*tmp;
-	int				i;
+	char		*tmp;
+	int			i;
 
+	if (!(tmp = tgetstr("ue", 0)))
+			return (FALSE);
+	tputs(tmp, 0, tputs_display_function);
 	if (!(tmp = tgetstr("cl", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
 	i = -1;
 	while (++i < (t_info->select_len + 1))
 		display_single_elem(select[i]);
-	i = -1;
-	while (++i < t_info->select_len && !select[i].is_show)
-		;
-	toggle_underline(&select[i]);
+	toggle_underline(&select[t_info->index]);
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
@@ -90,6 +89,8 @@ int				toggle_underline(t_select *select)
 {
 	char		*tmp;
 
+	if (!select->is_show)
+		return (FALSE);
 	if (select->is_underline)
 	{
 		if (!(tmp = tgetstr("ue", 0)))
@@ -111,9 +112,9 @@ int				display_single_elem(t_select select)
 	t_term_info *term;
 	char		*tmp;
 
-	if (!select.is_show) // to remove
-		return (TRUE);
-	term = get_or_init_term(NULL, NULL);
+	if (!select.is_show)
+		return (FALSE);
+	term = get_or_init_term(NULL, NULL); 
 	if (!(tmp = tgetstr("cm", 0)))
 		return (FALSE);
 	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);

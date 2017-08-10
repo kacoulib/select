@@ -16,7 +16,7 @@
 ** Move the cursor one line below.
 ** Loop un until it found a line
 **
-** @return return FALSE if no line found else return true
+** @return FALSE if no line found else return true
 */
 
 int					move_down(t_select select[], t_term_info *t_info)

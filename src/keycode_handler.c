@@ -12,6 +12,38 @@
 
 #include "ft_select.h"
 
+/*
+** Undo the last removed element
+** Find the last index in t_info->ctr_z that is different from -1
+** 
+** Return 
+*/
+
+static int			undo_selection(t_term_info *t_info, t_select select[])
+{
+	int				i;
+	int				j;
+
+	i = t_info->select_len;
+	while (t_info->ctr_z[i] == -1 && i > 0)
+		i--;
+	i = t_info->ctr_z[i];
+	// if (!select[i].is_show)
+	// {
+		t_info->ctr_z[i] = -1;
+		select[i].is_show = TRUE;
+		t_info->nb_deleted--;
+	// }
+	// update_sel
+	display_all_elem(t_info, select);
+	j = i;
+	i = -1;
+	while (select[++i].content && i < t_info->select_len)
+		printf("\t\t\t\t [%d] %d %s\n", j, t_info->ctr_z[i], select[i].content);
+
+	return (1);
+}
+
 int					display_result(t_select select[], t_term_info *term_info)
 {
 	int				i;
@@ -42,32 +74,29 @@ int					keycode_space(t_select select[], t_term_info *t_info)
 		t_info->nb_select--;
 	else if ((select[t_info->y_pos].is_select = TRUE))
 		t_info->nb_select++;
-	move_down(select, t_info);
-	return (1);
+	return (move_cursor(t_info, select, 'D'));
 }
 
 int					keycode_delete(t_select select[], t_term_info *t_info)
 {
-	char			*tmp;
+	int 			i;
 
-	if (!(tmp = tgetstr("cl", 0)))
+	if (!select[t_info->index].content)
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
-	// tmp = tgetstr("cm", 0);
-	// tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
-	// tmp = tgetstr("dl", 0);
-	// tputs(tgoto(tmp, 0, t_info->index), 0, tputs_display_function);
 	select[t_info->index].is_show = FALSE;
 	if (select[t_info->index].is_select)
 	{
 		select[t_info->index].is_select = FALSE;
 		t_info->nb_select--;
 	}
-	display_all_elem(select, t_info);
-
+	i = 0;
+	while (t_info->ctr_z[i] != -1 && i < t_info->select_len)
+		i++;
+	t_info->ctr_z[i] = t_info->index;
+	display_all_elem(t_info, select);
 	if (t_info->nb_deleted++ == t_info->select_len)
 		return (FALSE);
-	return (move_down(select, t_info));
+	return (move_cursor(t_info, select, 'D'));
 }
 
 int					keyboard_events(char keycode[], t_select select[], t_term_info *t_info)
@@ -77,9 +106,9 @@ int					keyboard_events(char keycode[], t_select select[], t_term_info *t_info)
 	if (keycode[0] == 27)
 	{
 		if (keycode[2] == 66)
-			return (move_down(select, t_info));
+			return (move_cursor(t_info, select, 'D'));
 		else if (keycode[2] == 65)
-			return (move_up(select, t_info));
+			return (move_cursor(t_info, select, 'U'));
 		else
 			return (0);
 	}
@@ -89,5 +118,7 @@ int					keyboard_events(char keycode[], t_select select[], t_term_info *t_info)
 		keycode_space(select, t_info);
 	else if (keycode[0] == 13 || keycode[0] == 10)
 		return (0);
+	else if (keycode[0] == 24 || keycode[0] == 18)
+		return (undo_selection(t_info, select));
 	return (1);
 }

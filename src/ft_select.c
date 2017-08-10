@@ -12,7 +12,7 @@
 
 #include "ft_select.h"
 
-int					read_term(t_select select[], t_term_info *t_info)
+static int					read_term(t_select select[], t_term_info *t_info)
 {
 	char			buff[PATH_MAX];
 	char			*tmp;
@@ -24,7 +24,7 @@ int					read_term(t_select select[], t_term_info *t_info)
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
 	update_selection(t_info, select);
-	display_all_elem(select, t_info);
+	display_all_elem(t_info, select);
 	while (read(0, buff, PATH_MAX) > 0)
 		if (!keyboard_events(buff, select, t_info))
 			break ;
@@ -34,6 +34,7 @@ int					read_term(t_select select[], t_term_info *t_info)
 int					main(int ac, char **av)
 {
 	t_select		select_list[arr_len((av[1] ? &av[1] : 0))];
+	int				ctr_z[arr_len((av[1] ? &av[1] : 0))];
 	t_term_info		*t_info;
 	struct termios	*term;
 
@@ -44,13 +45,12 @@ int					main(int ac, char **av)
 		return (FALSE);
 	if (!(t_info = get_or_init_term(av, term)))
 		return (FALSE);
-	if (!(t_info->ctr_z = (int *)ft_memalloc(sizeof(int) * t_info->select_len)))
-		return (0);
+	ft_bzero(ctr_z, t_info->select_len);
+	t_info->ctr_z = ctr_z;
 	ft_bzero(select_list, t_info->select_len);
 	init_selection(av, select_list, t_info);
 	signal_handler();
 	read_term(select_list, t_info);
 	display_result(select_list, t_info);
-	free(t_info->ctr_z);
 	return (FALSE);
 }
