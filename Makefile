@@ -16,7 +16,7 @@ CFLAGS  	=  -Wall -Werror -Wextra
 LIB			=	-L./lib/libft -lft -lncurses
 NAME    	=   ft_select
 CPPFLAGS	= 	-Iincludes
-SRCS		=   src/cursor_move.c \
+SRCS		=   src/cursor_handler.c \
 				src/keycode_handler.c \
 				src/screen_display.c \
 				src/selection_handler.c \

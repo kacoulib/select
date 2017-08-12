@@ -18,7 +18,7 @@
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				active_highlight(t_select select)
+static int		active_highlight(t_select select)
 {
 	char		*tmp;
 
@@ -40,10 +40,32 @@ int				active_highlight(t_select select)
 	return (TRUE);
 }
 
-int				tputs_display_function(int c)
+static int		display_single_elem(t_select select)
 {
-	if (!write(1, &c, 1))
-		return (0);
+	t_term_info *term;
+	char		*tmp;
+
+	if (!select.is_show)
+		return (FALSE);
+	term = get_or_init_term(NULL, NULL);
+	if (!(tmp = tgetstr("cm", 0)))
+		return (FALSE);
+	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);
+	active_highlight(select);
+	// ft_putstr(select.content);
+	// if (select.is_select)
+	// 	printf("%s %d\n", select.content, select.x_pos);
+	// else
+	if (select.type == 1)
+		ft_putstr(ANSI_COLOR_CYAN);
+	else if (select.type == 2)
+		ft_putstr(ANSI_COLOR_MAGENTA);
+	else if (select.type == 3)
+		ft_putstr(ANSI_COLOR_RED);
+	else if (select.type == 4)
+		ft_putstr(ANSI_COLOR_GREEN);
+	ft_putstr(select.content);
+	ft_putstr(ANSI_COLOR_RESET);
 	return (TRUE);
 }
 
@@ -63,11 +85,12 @@ int				display_all_elem(t_term_info *t_info, t_select select[])
 	int			i;
 
 	if (!(tmp = tgetstr("ue", 0)))
-			return (FALSE);
+		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
 	if (!(tmp = tgetstr("cl", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
+	update_selection(t_info, select);
 	i = -1;
 	while (++i < (t_info->select_len + 1))
 		display_single_elem(select[i]);
@@ -107,18 +130,9 @@ int				toggle_underline(t_select *select)
 	return (display_single_elem(*select));
 }
 
-int				display_single_elem(t_select select)
+int				tputs_display_function(int c)
 {
-	t_term_info *term;
-	char		*tmp;
-
-	if (!select.is_show)
-		return (FALSE);
-	term = get_or_init_term(NULL, NULL); 
-	if (!(tmp = tgetstr("cm", 0)))
-		return (FALSE);
-	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);
-	active_highlight(select);
-	ft_putstr(select.content);
+	if (!write(1, &c, 1))
+		return (0);
 	return (TRUE);
 }

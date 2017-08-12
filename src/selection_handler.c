@@ -24,17 +24,22 @@ int				arr_len(char **arr)
 	return (i);
 }
 
-/*
-** Delete the selection liste one by one
-**
-** @return a null
-*/
-
-t_select		*delete_selection(t_select *head)
+static void		set_file_type(t_select *select)
 {
-	if (!head)
-		return (NULL);
-	return (head);
+	struct stat sb;
+	
+	select->type = 0;
+	if ((lstat(select->content, &sb) != -1) || (stat(select->content, &sb) != -1))
+	{
+		if (S_ISLNK(sb.st_mode))
+			select->type = 2;
+		else if (sb.st_mode & S_ISVTX)
+			select->type = 4;
+		else if (!S_ISDIR(sb.st_mode) && sb.st_mode & S_IXUSR)
+				select->type = 3;
+		else
+			select->type = 1;
+	}
 }
 
 /*
@@ -56,11 +61,12 @@ void			init_selection(char **av, t_select select[], t_term_info *t_info)
 		select[i].is_underline = FALSE;
 		select[i].is_show = TRUE;
 		t_info->ctr_z[i] = -1;
+		set_file_type(&select[i]);
 	}
 }
 
 /*
-** update a liste of selection
+** update the selection list
 */
 
 void			update_selection(t_term_info *t_info, t_select select[])
@@ -68,56 +74,26 @@ void			update_selection(t_term_info *t_info, t_select select[])
 	int			i;
 	int			x;
 	int			y;
+	int			z;
 
 	i = -1;
 	x = 0;
 	y = 0;
+	z = -1;
 	update_screen_info();
 	while (++i < (t_info->select_len + 1))
 	{
-		y = select[i].id;
-		if (select[i].id > t_info->height)
-			x = select[i].id / t_info->height;
-		if (x > 0)
-		y = (y - (t_info->height * x)) - 1;
-		select[i].x_pos = t_info->col_space * x;
-		select[i].y_pos = y;
+		if (select[i].is_show)
+		{
+			z++;
+			if (z > t_info->height)
+				x = z / t_info->height;
+			if (x > 0)
+				y = (z - (t_info->height * x)) - 1;
+				// y = (z - (t_info->height)) - 1;
+			select[i].x_pos = t_info->col_space * x;
+			select[i].y_pos = z;
+		}
 	}
 }
-/*
-** Find the next index of the selection.
-** If there's only one selection, return that one
-**
-** @param	direction : A char that should be D for (DOWN) or somthing else for (UP)
-** @return	The next index otherwhise -1 is returned
-*/
-
-int				move_cursor(t_term_info *t_info, t_select select[], char direction)
-{
-	int				last_index;
-	int				stop;
-
-	if (t_info->select_len == t_info->nb_deleted)
-		return (t_info->index);
-	last_index = t_info->index;
-	stop = 1;
-	while (t_info->index != last_index || stop)
-	{
-		stop = 0;
-		if (!select[last_index].is_show && select[t_info->index].is_show)
-			last_index = t_info->index;
-		if (direction == 'D')
-			t_info->index = (t_info->index != t_info->select_len) ? t_info->index + 1 : 0;
-		else
-			t_info->index = (t_info->index != 0) ? t_info->index - 1: t_info->select_len;
-		if (select[t_info->index].is_show)
-			break;
-	}
-	if (select[last_index].is_underline)
-		toggle_underline(&select[last_index]);
-	toggle_underline(&select[t_info->index]);
-	t_info->last_pos = t_info->y_pos;
-	return (TRUE);
-}
-
 

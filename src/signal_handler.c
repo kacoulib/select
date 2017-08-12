@@ -16,20 +16,14 @@
 
 static void						stop_signal(t_term_info *term)
 {
-	// char	buff[2];
-
 	reset_term(term->term);
 	signal(SIGSTOP, SIG_DFL);
-	// buff[0] = term->term->c_cc[VSUSP];
-	// buff[1] = 0;
-	// ioctl(0, TIOCSTI, buff);
 }
 
 static void						continue_signal(t_term_info *term)
 {
 	reset_term(term->term);
 	signal(SIGCONT, SIG_DFL);
-
 }
 
 static void						kill_signal(t_term_info *term)
@@ -62,7 +56,6 @@ static void						handle_signal(int signum)
 		kill_signal(term);
 	else
 		printf("This %d signal has been captured but not handler :(", signum);
-		// ft_putstr("This signal has been captured but not handler :(");
 }
 
 int						signal_handler(void)

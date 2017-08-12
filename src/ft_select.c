@@ -12,7 +12,54 @@
 
 #include "ft_select.h"
 
-static int					read_term(t_select select[], t_term_info *t_info)
+// int					ft_display_color(char *file) // to remove
+// {
+// 	ft_putstr(file->name);
+// 	ft_putendl(SETCOLOR ? ANSI_COLOR_RESET : "");
+// 	ft_putstr(file->name);
+// 	ft_putendl(SETCOLOR ? ANSI_COLOR_RESET : "");
+// 	return (1);
+// }
+
+static int			ft_putstr_with_space(char *str)
+{
+	int				i;
+
+	i = -1;
+	while (str[++i])
+	{
+		if (str[i] == ' ')
+			write(1, "\\ ", 2);
+		else
+			write(1, &str[i], 1);
+	}
+	return (TRUE);
+}
+
+static int			display_result(t_select select[], t_term_info *term_info)
+{
+	int				i;
+
+	if (!term_info->nb_select)
+		return (0);
+	i = -1;
+	while (++i < term_info->select_len + 1)
+	{
+		if (select[i].is_select)
+		{
+			if (strchr(select[i].content, ' '))
+				ft_putstr_with_space(select[i].content);
+			else
+				ft_putstr(select[i].content);
+			if (--(term_info->nb_select) > 0)
+				ft_putstr(" ");
+		}
+	}
+	ft_putchar('\n');
+	return (1);
+}
+
+static int			read_term(t_select select[], t_term_info *t_info)
 {
 	char			buff[PATH_MAX];
 	char			*tmp;

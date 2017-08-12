@@ -12,20 +12,19 @@
 
 #include "ft_select.h"
 
-struct	termios		*get_terminal(void)
+struct	termios				*get_terminal(void)
 {
-	static	struct termios *term = NULL;
+	static	struct termios	*term = NULL;
 
 	if (!term)
 		term = malloc(sizeof(struct termios) + 1);
 	return (term);
 }
 
-int					update_screen_info(void)
+int							update_screen_info(void)
 {
-
-	struct winsize 	w;
-	t_term_info		*t_info;
+	struct winsize			w;
+	t_term_info				*t_info;
 
 	t_info = get_or_init_term(NULL, NULL);
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0)
@@ -36,21 +35,24 @@ int					update_screen_info(void)
 	{
 		t_info->nb_col = w.ws_col / t_info->col_space;
 		if ((t_info->select_len / t_info->nb_col) > w.ws_row)
+		{
 			ft_putendl("Sorry but the screen is too small");
+			return (FALSE);
+		}
 	}
 	return (TRUE);
 }
 
 /*
-**
+**	Set the terminal if not get it
 **
 ** @return return the top head of created term_info
 */
 
-t_term_info			*get_or_init_term(char **av, struct termios	*term)
+t_term_info					*get_or_init_term(char **av, struct termios	*term)
 {
-	int				i;
-	int				tmp;
+	int						i;
+	int						tmp;
 	static t_term_info		*new_term_info = NULL;
 
 	if (new_term_info)
@@ -72,12 +74,10 @@ t_term_info			*get_or_init_term(char **av, struct termios	*term)
 	new_term_info->col_space = tmp + 3;
 	new_term_info->nb_col = 0;
 	new_term_info->term = term;
-	if (!update_screen_info())
-		return (FALSE);
 	return (new_term_info);
 }
 
-int					reset_term(struct termios *term)
+int							reset_term(struct termios *term)
 {
 	char					*tmp;
 
@@ -92,7 +92,7 @@ int					reset_term(struct termios *term)
 	if (!(tmp = tgetstr("ve", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
-	if (!(tmp = tgetstr("se", 0))) 
+	if (!(tmp = tgetstr("se", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
 	if (!(tmp = tgetstr("ue", 0)))
@@ -103,7 +103,7 @@ int					reset_term(struct termios *term)
 	return (TRUE);
 }
 
-int					set_cannic_mode(struct termios *term)
+int							set_cannic_mode(struct termios *term)
 {
 	char					*term_name;
 	char					*tmp;
