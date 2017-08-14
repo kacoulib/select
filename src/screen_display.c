@@ -52,10 +52,6 @@ static int		display_single_elem(t_select select)
 		return (FALSE);
 	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);
 	active_highlight(select);
-	// ft_putstr(select.content);
-	// if (select.is_select)
-	// 	printf("%s %d\n", select.content, select.x_pos);
-	// else
 	if (select.type == 1)
 		ft_putstr(ANSI_COLOR_CYAN);
 	else if (select.type == 2)
@@ -79,10 +75,18 @@ static int		display_single_elem(t_select select)
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				display_all_elem(t_term_info *t_info, t_select select[])
+int				display_all_elem(t_term_info *oldt_info, t_select select[])
 {
 	char		*tmp;
 	int			i;
+
+	t_select 	*new_s;
+	t_term_info *new_t;
+	t_term_info *t_info;
+
+	new_t = oldt_info;
+	new_s = select;
+	t_info = get_or_init_term(NULL, NULL);
 
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
@@ -90,11 +94,13 @@ int				display_all_elem(t_term_info *t_info, t_select select[])
 	if (!(tmp = tgetstr("cl", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
-	update_selection(t_info, select);
+	if (!update_screen_info())
+		return (FALSE);
+	update_selection(t_info, t_info->select);
 	i = -1;
 	while (++i < (t_info->select_len + 1))
-		display_single_elem(select[i]);
-	toggle_underline(&select[t_info->index]);
+		display_single_elem(t_info->select[i]);
+	toggle_underline(&t_info->select[t_info->index]);
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);

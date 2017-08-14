@@ -63,6 +63,7 @@ void			init_selection(char **av, t_select select[], t_term_info *t_info)
 		t_info->ctr_z[i] = -1;
 		set_file_type(&select[i]);
 	}
+	t_info->select = select;
 }
 
 /*
@@ -73,26 +74,21 @@ void			update_selection(t_term_info *t_info, t_select select[])
 {
 	int			i;
 	int			x;
-	int			y;
 	int			z;
 
 	i = -1;
 	x = 0;
-	y = 0;
 	z = -1;
-	update_screen_info();
+	// update_screen_info();
 	while (++i < (t_info->select_len + 1))
 	{
 		if (select[i].is_show)
 		{
 			z++;
-			if (z > t_info->height)
+			if (z >= t_info->height)
 				x = z / t_info->height;
-			if (x > 0)
-				y = (z - (t_info->height * x)) - 1;
-				// y = (z - (t_info->height)) - 1;
 			select[i].x_pos = t_info->col_space * x;
-			select[i].y_pos = z;
+			select[i].y_pos = (z - (t_info->height * x));
 		}
 	}
 }

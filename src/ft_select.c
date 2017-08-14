@@ -12,16 +12,7 @@
 
 #include "ft_select.h"
 
-// int					ft_display_color(char *file) // to remove
-// {
-// 	ft_putstr(file->name);
-// 	ft_putendl(SETCOLOR ? ANSI_COLOR_RESET : "");
-// 	ft_putstr(file->name);
-// 	ft_putendl(SETCOLOR ? ANSI_COLOR_RESET : "");
-// 	return (1);
-// }
-
-static int			ft_putstr_with_space(char *str)
+static int			ft_putstr_space_caracter(char *str)
 {
 	int				i;
 
@@ -48,7 +39,7 @@ static int			display_result(t_select select[], t_term_info *term_info)
 		if (select[i].is_select)
 		{
 			if (strchr(select[i].content, ' '))
-				ft_putstr_with_space(select[i].content);
+				ft_putstr_space_caracter(select[i].content);
 			else
 				ft_putstr(select[i].content);
 			if (--(term_info->nb_select) > 0)
@@ -70,11 +61,17 @@ static int			read_term(t_select select[], t_term_info *t_info)
 	if (!(tmp = tgetstr("vi", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
-	update_selection(t_info, select);
 	display_all_elem(t_info, select);
 	while (read(0, buff, PATH_MAX) > 0)
-		if (!keyboard_events(buff, select, t_info))
-			break ;
+	{
+		// if (t_info->win_size_is_ok)
+		// {
+		// 	if (t_info->is_win_size_change)
+		// 		display_all_elem(t_info, select);
+			if (!keyboard_events(buff, select, t_info))
+				break ;
+		// }
+	}
 	return (reset_term(get_terminal()));
 }
 

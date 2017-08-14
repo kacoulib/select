@@ -62,7 +62,10 @@ typedef struct		s_term_info
 	int				height;
 	int				width;
 	int				*ctr_z;
+	int				is_win_size_change;
 	int				nb_col;
+	int				win_size_is_ok;
+	t_select		*select;
 	struct termios	*term;
 }					t_term_info;
 

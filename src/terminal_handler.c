@@ -25,21 +25,31 @@ int							update_screen_info(void)
 {
 	struct winsize			w;
 	t_term_info				*t_info;
+	char					*tmp;
 
 	t_info = get_or_init_term(NULL, NULL);
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0)
 		return (FALSE);
-	t_info->height = w.ws_row - 2;
-	t_info->width = w.ws_col - 2;
+	// if ((t_info->height != w.ws_row != t_info->width != w.ws_col))
+	// 	t_info->is_win_size_change = TRUE;
+	t_info->height = w.ws_row;
+	t_info->width = w.ws_col;
 	if (t_info->select_len > w.ws_row)
 	{
 		t_info->nb_col = w.ws_col / t_info->col_space;
 		if ((t_info->select_len / t_info->nb_col) > w.ws_row)
 		{
+			t_info->win_size_is_ok = FALSE;
+			if (!(tmp = tgetstr("cl", 0)))
+				return (FALSE);
+			tputs(tmp, 0, tputs_display_function);
 			ft_putendl("Sorry but the screen is too small");
 			return (FALSE);
 		}
 	}
+	// if (t_info->is_win_size_change)
+	// 	display_all_elem();
+	t_info->win_size_is_ok = FALSE;
 	return (TRUE);
 }
 
@@ -73,6 +83,7 @@ t_term_info					*get_or_init_term(char **av, struct termios	*term)
 	new_term_info->y_pos = 0;
 	new_term_info->col_space = tmp + 3;
 	new_term_info->nb_col = 0;
+	new_term_info->is_win_size_change = FALSE;
 	new_term_info->term = term;
 	return (new_term_info);
 }
