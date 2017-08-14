@@ -27,16 +27,17 @@ int				arr_len(char **arr)
 static void		set_file_type(t_select *select)
 {
 	struct stat sb;
-	
+
 	select->type = 0;
-	if ((lstat(select->content, &sb) != -1) || (stat(select->content, &sb) != -1))
+	if ((lstat(select->content, &sb) != -1) ||
+		(stat(select->content, &sb) != -1))
 	{
 		if (S_ISLNK(sb.st_mode))
 			select->type = 2;
 		else if (sb.st_mode & S_ISVTX)
 			select->type = 4;
 		else if (!S_ISDIR(sb.st_mode) && sb.st_mode & S_IXUSR)
-				select->type = 3;
+			select->type = 3;
 		else
 			select->type = 1;
 	}
@@ -46,7 +47,8 @@ static void		set_file_type(t_select *select)
 ** Create a liste of selection
 */
 
-void			init_selection(char **av, t_select select[], t_term_info *t_info)
+void			init_selection(char **av, t_select select[],
+	t_term_info *t_info)
 {
 	int			i;
 
@@ -79,7 +81,6 @@ void			update_selection(t_term_info *t_info, t_select select[])
 	i = -1;
 	x = 0;
 	z = -1;
-	// update_screen_info();
 	while (++i < (t_info->select_len + 1))
 	{
 		if (select[i].is_show)
@@ -92,4 +93,3 @@ void			update_selection(t_term_info *t_info, t_select select[])
 		}
 	}
 }
-

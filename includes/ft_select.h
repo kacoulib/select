@@ -36,7 +36,6 @@
 # define ANSI_COLOR_CYAN	"\x1B[36m"
 # define ANSI_COLOR_RESET	"\x1B[0m"
 
-
 typedef struct		s_select
 {
 	char			*content;
@@ -62,9 +61,8 @@ typedef struct		s_term_info
 	int				height;
 	int				width;
 	int				*ctr_z;
-	int				is_win_size_change;
 	int				nb_col;
-	int				win_size_is_ok;
+	int				is_win_size_ok;
 	t_select		*select;
 	struct termios	*term;
 }					t_term_info;
@@ -74,7 +72,7 @@ int					tputs_display_function(int c);
 int					signal_handler();
 void				init_selection(char **av, t_select list[],
 	t_term_info *t_info);
-int					display_all_elem(t_term_info *term_info, t_select select[]);
+int					display_all_elem(void);
 t_term_info			*get_or_init_term(char **av, struct termios	*term);
 int					keyboard_events(char keycode[], t_select select[],
 	t_term_info *term_info);

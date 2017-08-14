@@ -12,34 +12,32 @@
 
 #include "ft_select.h"
 
-
-
-static void						stop_signal(t_term_info *term)
+static void		stop_signal(t_term_info *term)
 {
 	reset_term(term->term);
 	signal(SIGSTOP, SIG_DFL);
 }
 
-static void						continue_signal(t_term_info *term)
+static void		continue_signal(t_term_info *term)
 {
 	reset_term(term->term);
 	signal(SIGCONT, SIG_DFL);
 }
 
-static void						kill_signal(t_term_info *term)
+static void		kill_signal(t_term_info *term)
 {
 	reset_term(term->term);
 	printf("signall killed\n");
 	exit(0);
 }
 
-static void						handle_signal(int signum)
+static void		handle_signal(int signum)
 {
 	t_term_info *term;
 
 	term = get_or_init_term(NULL, NULL);
 	if (signum == SIGWINCH)
-		update_screen_info();
+		display_all_elem();
 	else if (signum == SIGCONT)
 		continue_signal(term);
 	else if (signum == SIGINT)
@@ -58,7 +56,7 @@ static void						handle_signal(int signum)
 		printf("This %d signal has been captured but not handler :(", signum);
 }
 
-int						signal_handler(void)
+int				signal_handler(void)
 {
 	int			i;
 

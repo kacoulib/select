@@ -21,36 +21,54 @@ struct	termios				*get_terminal(void)
 	return (term);
 }
 
+static int					update_screen_info_last_part(t_term_info *t_info)
+{
+	char					*tmp;
+	int						x;
+
+	x = (t_info->width / 2) - 16;
+	tputs(tmp, 0, tputs_display_function);
+	if (!(tmp = tgetstr("cm", 0)))
+		return (FALSE);
+	tputs(tgoto(tmp, x - 1, t_info->height / 2), 0, tputs_display_function);
+	ft_putendl("Sorry but the screen is too small");
+	t_info->is_win_size_ok = FALSE;
+	return (FALSE);
+}
+
 int							update_screen_info(void)
 {
+	int						i;
 	struct winsize			w;
 	t_term_info				*t_info;
-	char					*tmp;
 
 	t_info = get_or_init_term(NULL, NULL);
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0)
 		return (FALSE);
-	// if ((t_info->height != w.ws_row != t_info->width != w.ws_col))
-	// 	t_info->is_win_size_change = TRUE;
+	i = t_info->select_len - t_info->nb_deleted;
 	t_info->height = w.ws_row;
 	t_info->width = w.ws_col;
-	if (t_info->select_len > w.ws_row)
+	if (i >= w.ws_row || t_info->col_space > t_info->width)
 	{
 		t_info->nb_col = w.ws_col / t_info->col_space;
-		if ((t_info->select_len / t_info->nb_col) > w.ws_row)
-		{
-			t_info->win_size_is_ok = FALSE;
-			if (!(tmp = tgetstr("cl", 0)))
-				return (FALSE);
-			tputs(tmp, 0, tputs_display_function);
-			ft_putendl("Sorry but the screen is too small");
-			return (FALSE);
-		}
+		i = (t_info->nb_col) ? (i / t_info->nb_col) : i;
+		if (i >= w.ws_row || t_info->col_space > t_info->width)
+			return (update_screen_info_last_part(t_info));
 	}
-	// if (t_info->is_win_size_change)
-	// 	display_all_elem();
-	t_info->win_size_is_ok = FALSE;
+	t_info->is_win_size_ok = TRUE;
 	return (TRUE);
+}
+
+static void					init_term_last_part(t_term_info *new_term_info)
+{
+	new_term_info->index = 0;
+	new_term_info->last_pos = 0;
+	new_term_info->nb_select = 0;
+	new_term_info->nb_deleted = 0;
+	new_term_info->x_pos = 0;
+	new_term_info->y_pos = 0;
+	new_term_info->nb_col = 0;
+	new_term_info->is_win_size_ok = FALSE;
 }
 
 /*
@@ -74,17 +92,11 @@ t_term_info					*get_or_init_term(char **av, struct termios	*term)
 			tmp = ft_strlen(av[i]);
 	if (!(new_term_info = malloc(sizeof(t_term_info) + 1)))
 		return (NULL);
-	new_term_info->index = 0;
-	new_term_info->last_pos = 0;
-	new_term_info->nb_select = 0;
-	new_term_info->nb_deleted = 0;
 	new_term_info->select_len = arr_len(av) - 1;
-	new_term_info->x_pos = 0;
-	new_term_info->y_pos = 0;
-	new_term_info->col_space = tmp + 3;
-	new_term_info->nb_col = 0;
-	new_term_info->is_win_size_change = FALSE;
+	new_term_info->col_space = tmp + 1;
 	new_term_info->term = term;
+	init_term_last_part(new_term_info);
+	update_screen_info();
 	return (new_term_info);
 }
 

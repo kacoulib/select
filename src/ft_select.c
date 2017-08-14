@@ -61,16 +61,12 @@ static int			read_term(t_select select[], t_term_info *t_info)
 	if (!(tmp = tgetstr("vi", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
-	display_all_elem(t_info, select);
+	display_all_elem();
 	while (read(0, buff, PATH_MAX) > 0)
 	{
-		// if (t_info->win_size_is_ok)
-		// {
-		// 	if (t_info->is_win_size_change)
-		// 		display_all_elem(t_info, select);
+		if (t_info->is_win_size_ok)
 			if (!keyboard_events(buff, select, t_info))
 				break ;
-		// }
 	}
 	return (reset_term(get_terminal()));
 }

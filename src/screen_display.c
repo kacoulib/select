@@ -75,19 +75,13 @@ static int		display_single_elem(t_select select)
 ** @return TRUE on sucess otherwhise return FALSE
 */
 
-int				display_all_elem(t_term_info *oldt_info, t_select select[])
+int				display_all_elem(void)
 {
 	char		*tmp;
 	int			i;
+	t_term_info	*t_info;
 
-	t_select 	*new_s;
-	t_term_info *new_t;
-	t_term_info *t_info;
-
-	new_t = oldt_info;
-	new_s = select;
 	t_info = get_or_init_term(NULL, NULL);
-
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);

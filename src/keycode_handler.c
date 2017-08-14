@@ -34,14 +34,12 @@ static int			undo_selection(t_term_info *t_info, t_select select[])
 		t_info->index = j;
 		select[j].is_underline = TRUE;
 	}
-	display_all_elem(t_info, select);
+	display_all_elem();
 	return (1);
 }
 
 static int			keycode_space(t_select select[], t_term_info *t_info)
 {
-	// if (select[t_info->index].is_select)
-	// 	printf("%s %d\n", select[t_info->index].content, select[t_info->index].x_pos);
 	if (select[t_info->index].is_select)
 	{
 		if (!(select[t_info->index].is_select = FALSE))
@@ -69,13 +67,13 @@ static int			keycode_delete(t_select select[], t_term_info *t_info)
 		i++;
 	select[t_info->index].is_underline = TRUE;
 	t_info->ctr_z[i] = t_info->index;
-	display_all_elem(t_info, select);
+	display_all_elem();
 	if (t_info->nb_deleted++ == t_info->select_len)
 		return (FALSE);
 	return (move_cursor(t_info, select, 'D'));
 }
 
-int				keyboard_events(char keycode[], t_select select[],
+int					keyboard_events(char keycode[], t_select select[],
 	t_term_info *t_info)
 {
 	if (!keycode)
