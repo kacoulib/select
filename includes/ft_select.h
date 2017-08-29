@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_SELECT
-# define FT_SELECT
+#ifndef FT_SELECT_H
+# define FT_SELECT_H
 
 # include "libft.h"
 # include <unistd.h>
@@ -87,5 +87,11 @@ struct termios		*get_terminal();
 int					move_cursor(t_term_info *t_info, t_select select[],
 	char direction);
 int					update_screen_info(void);
+int			display_result(t_term_info *term_info, t_select select[]);
+
+int					read_term(t_term_info *t_info, t_select select[]);
+
+int					ft_putFileName(char *str, int type); // Add to the libft
+
 
 #endif

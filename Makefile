@@ -10,11 +10,11 @@
 #                                                                              #
 # **************************************************************************** #
 
+NAME    	=   ft_select
 CC      	=   gcc
 RM      	=   rm -f
 CFLAGS  	=  -Wall -Werror -Wextra
 LIB			=	-L./lib/libft -lft -lncurses
-NAME    	=   ft_select
 CPPFLAGS	= 	-Iincludes
 SRCS		=   src/cursor_handler.c \
 				src/keycode_handler.c \

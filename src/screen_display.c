@@ -52,16 +52,7 @@ static int		display_single_elem(t_select select)
 		return (FALSE);
 	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);
 	active_highlight(select);
-	if (select.type == 1)
-		ft_putstr(ANSI_COLOR_CYAN);
-	else if (select.type == 2)
-		ft_putstr(ANSI_COLOR_MAGENTA);
-	else if (select.type == 3)
-		ft_putstr(ANSI_COLOR_RED);
-	else if (select.type == 4)
-		ft_putstr(ANSI_COLOR_GREEN);
-	ft_putstr(select.content);
-	ft_putstr(ANSI_COLOR_RESET);
+	ft_putFileName(select.content, select.type);
 	return (TRUE);
 }
 

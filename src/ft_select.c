@@ -12,6 +12,22 @@
 
 #include "ft_select.h"
 
+
+int					ft_putFileName(char *str, int type)
+{
+	if (type == 1)
+		ft_putstr(ANSI_COLOR_CYAN);
+	else if (type == 2)
+		ft_putstr(ANSI_COLOR_MAGENTA);
+	else if (type == 3)
+		ft_putstr(ANSI_COLOR_RED);
+	else if (type == 4)
+		ft_putstr(ANSI_COLOR_GREEN);
+	ft_putstr(str);
+	ft_putstr(ANSI_COLOR_RESET);
+	return (1);
+}
+
 static int			ft_putstr_space_caracter(char *str)
 {
 	int				i;
@@ -27,7 +43,7 @@ static int			ft_putstr_space_caracter(char *str)
 	return (TRUE);
 }
 
-static int			display_result(t_select select[], t_term_info *term_info)
+int			display_result(t_term_info *term_info, t_select select[])
 {
 	int				i;
 
@@ -50,7 +66,7 @@ static int			display_result(t_select select[], t_term_info *term_info)
 	return (1);
 }
 
-static int			read_term(t_select select[], t_term_info *t_info)
+int					read_term(t_term_info *t_info, t_select select[])
 {
 	char			buff[PATH_MAX];
 	char			*tmp;
@@ -90,7 +106,7 @@ int					main(int ac, char **av)
 	ft_bzero(select_list, t_info->select_len);
 	init_selection(av, select_list, t_info);
 	signal_handler();
-	read_term(select_list, t_info);
-	display_result(select_list, t_info);
+	read_term(t_info, select_list);
+	display_result(t_info, select_list);
 	return (FALSE);
 }

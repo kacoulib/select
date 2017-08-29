@@ -34,10 +34,19 @@ static void		set_file_type(t_select *select)
 	{
 		if (S_ISLNK(sb.st_mode))
 			select->type = 2;
-		else if (sb.st_mode & S_ISVTX)
+		else if (sb.st_mode & S_ISVTX && sb.st_mode & S_IRUSR &&
+			sb.st_mode & S_IXUSR &&
+			sb.st_mode & S_IRGRP && sb.st_mode & S_IWGRP &&
+			sb.st_mode & S_IXGRP && sb.st_mode & S_IROTH &&
+			sb.st_mode & S_IWOTH && sb.st_mode & S_IXOTH)
 			select->type = 4;
-		else if (!S_ISDIR(sb.st_mode) && sb.st_mode & S_IXUSR)
-			select->type = 3;
+		else if (!S_ISDIR(sb.st_mode))
+		{
+			if (sb.st_mode & S_IXUSR)
+				select->type = 3;
+			else
+				select->type = 0;
+		}
 		else
 			select->type = 1;
 	}
