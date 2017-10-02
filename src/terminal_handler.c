@@ -21,44 +21,6 @@ struct	termios				*get_terminal(void)
 	return (term);
 }
 
-static int					update_screen_info_last_part(t_term_info *t_info)
-{
-	char					*tmp;
-	int						x;
-
-	x = (t_info->width / 2) - 16;
-	tputs(tmp, 0, tputs_display_function);
-	if (!(tmp = tgetstr("cm", 0)))
-		return (FALSE);
-	tputs(tgoto(tmp, x - 1, t_info->height / 2), 0, tputs_display_function);
-	ft_putendl("Sorry but the screen is too small");
-	t_info->is_win_size_ok = FALSE;
-	return (FALSE);
-}
-
-int							update_screen_info(void)
-{
-	int						i;
-	struct winsize			w;
-	t_term_info				*t_info;
-
-	t_info = get_or_init_term(NULL, NULL);
-	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0)
-		return (FALSE);
-	i = t_info->select_len - t_info->nb_deleted;
-	t_info->height = w.ws_row;
-	t_info->width = w.ws_col;
-	if (i >= w.ws_row || t_info->col_space > t_info->width)
-	{
-		t_info->nb_col = w.ws_col / t_info->col_space;
-		i = (t_info->nb_col) ? (i / t_info->nb_col) : i;
-		if (i >= w.ws_row || t_info->col_space > t_info->width)
-			return (update_screen_info_last_part(t_info));
-	}
-	t_info->is_win_size_ok = TRUE;
-	return (TRUE);
-}
-
 static void					init_term_last_part(t_term_info *new_term_info)
 {
 	new_term_info->index = 0;
@@ -111,16 +73,16 @@ int							reset_term(struct termios *term)
 	term->c_cc[VTIME] = 100;
 	if (!(tmp = tgetstr("te", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	if (!(tmp = tgetstr("ve", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	if (!(tmp = tgetstr("se", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	if (tcsetattr(0, TCSADRAIN, term) < 0)
 		return (FALSE);
 	return (TRUE);
@@ -133,6 +95,8 @@ int							set_cannic_mode(struct termios *term)
 
 	tmp = NULL;
 	if (!(term_name = getenv("TERM")))
+		return (FALSE);
+	if (ft_strcmp(term_name, "xterm-256color") != 0)
 		return (FALSE);
 	if (tgetent(0, term_name) < 1)
 		return (FALSE);

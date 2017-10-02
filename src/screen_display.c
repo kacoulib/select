@@ -26,16 +26,16 @@ static int		active_highlight(t_select select)
 	{
 		if (!(tmp = tgetstr("so", 0)))
 			return (FALSE);
-		tputs(tmp, 0, tputs_display_function);
+		tputs(tmp, 1, tputs_display_function);
 		if (!(tmp = tgetstr("mr", 0)))
 			return (FALSE);
-		tputs(tmp, 0, tputs_display_function);
+		tputs(tmp, 1, tputs_display_function);
 	}
 	else
 	{
 		if (!(tmp = tgetstr("se", 0)))
 			return (FALSE);
-		tputs(tmp, 0, tputs_display_function);
+		tputs(tmp, 1, tputs_display_function);
 	}
 	return (TRUE);
 }
@@ -52,7 +52,7 @@ static int		display_single_elem(t_select select)
 		return (FALSE);
 	tputs(tgoto(tmp, select.x_pos, select.y_pos), 0, tputs_display_function);
 	active_highlight(select);
-	ft_putFileName(select.content, select.type);
+	ft_put_file_name(select.content, select.type);
 	return (TRUE);
 }
 
@@ -75,10 +75,10 @@ int				display_all_elem(void)
 	t_info = get_or_init_term(NULL, NULL);
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	if (!(tmp = tgetstr("cl", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	if (!update_screen_info())
 		return (FALSE);
 	update_selection(t_info, t_info->select);
@@ -88,7 +88,7 @@ int				display_all_elem(void)
 	toggle_underline(&t_info->select[t_info->index]);
 	if (!(tmp = tgetstr("ue", 0)))
 		return (FALSE);
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	return (TRUE);
 }
 
@@ -117,13 +117,13 @@ int				toggle_underline(t_select *select)
 			return (FALSE);
 		select->is_underline = TRUE;
 	}
-	tputs(tmp, 0, tputs_display_function);
+	tputs(tmp, 1, tputs_display_function);
 	return (display_single_elem(*select));
 }
 
 int				tputs_display_function(int c)
 {
-	if (!write(1, &c, 1))
+	if (!write(isatty(STDOUT_FILENO), &c, 1))
 		return (0);
 	return (TRUE);
 }

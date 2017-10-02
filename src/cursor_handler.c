@@ -47,13 +47,11 @@ int				move_cursor(t_term_info *t_info, t_select select[],
 		if (!select[last_index].is_show && select[t_info->index].is_show)
 			last_index = t_info->index;
 		if (direction == 'D')
-		{
-			t_info->index = (t_info->index != t_info->select_len) ? t_info->index + 1 : 0;
-		}
+			t_info->index = (t_info->index != t_info->select_len) ?
+		t_info->index + 1 : 0;
 		else
-		{
-			t_info->index = (t_info->index != 0) ? t_info->index - 1 : t_info->select_len;
-		}
+			t_info->index = (t_info->index != 0) ?
+		t_info->index - 1 : t_info->select_len;
 		if (select[t_info->index].is_show)
 			break ;
 	}

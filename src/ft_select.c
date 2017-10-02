@@ -12,23 +12,22 @@
 
 #include "ft_select.h"
 
-
-int					ft_putFileName(char *str, int type)
+int					ft_put_file_name(char *str, int type)
 {
 	if (type == 1)
-		ft_putstr(ANSI_COLOR_CYAN);
+		ft_putstr_fd(ANSI_COLOR_CYAN, OUT1);
 	else if (type == 2)
-		ft_putstr(ANSI_COLOR_MAGENTA);
+		ft_putstr_fd(ANSI_COLOR_MAGENTA, OUT1);
 	else if (type == 3)
-		ft_putstr(ANSI_COLOR_RED);
+		ft_putstr_fd(ANSI_COLOR_RED, OUT1);
 	else if (type == 4)
-		ft_putstr(ANSI_COLOR_GREEN);
-	ft_putstr(str);
-	ft_putstr(ANSI_COLOR_RESET);
+		ft_putstr_fd(ANSI_COLOR_GREEN, OUT1);
+	ft_putstr_fd(str, OUT1);
+	ft_putstr_fd(ANSI_COLOR_RESET, OUT1);
 	return (1);
 }
 
-static int			ft_putstr_space_caracter(char *str)
+static int			ft_putstr_space_caracter(char *str, int fd)
 {
 	int				i;
 
@@ -36,14 +35,14 @@ static int			ft_putstr_space_caracter(char *str)
 	while (str[++i])
 	{
 		if (str[i] == ' ')
-			write(1, "\\ ", 2);
+			write(fd, "\\ ", 2);
 		else
-			write(1, &str[i], 1);
+			write(fd, &str[i], 1);
 	}
 	return (TRUE);
 }
 
-int			display_result(t_term_info *term_info, t_select select[])
+int					display_result(t_term_info *term_info, t_select select[])
 {
 	int				i;
 
@@ -55,14 +54,14 @@ int			display_result(t_term_info *term_info, t_select select[])
 		if (select[i].is_select)
 		{
 			if (strchr(select[i].content, ' '))
-				ft_putstr_space_caracter(select[i].content);
+				ft_putstr_space_caracter(select[i].content, 1);
 			else
-				ft_putstr(select[i].content);
+				ft_putstr_fd(select[i].content, 1);
 			if (--(term_info->nb_select) > 0)
-				ft_putstr(" ");
+				ft_putstr_fd(" ", 1);
 		}
 	}
-	ft_putchar('\n');
+	ft_putchar_fd('\n', 1);
 	return (1);
 }
 
@@ -78,11 +77,13 @@ int					read_term(t_term_info *t_info, t_select select[])
 		return (FALSE);
 	tputs(tmp, 0, tputs_display_function);
 	display_all_elem();
+	ft_bzero(buff, ft_strlen(buff));
 	while (read(0, buff, PATH_MAX) > 0)
 	{
 		if (t_info->is_win_size_ok)
 			if (!keyboard_events(buff, select, t_info))
 				break ;
+		ft_bzero(buff, ft_strlen(buff));
 	}
 	return (reset_term(get_terminal()));
 }

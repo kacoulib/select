@@ -13,9 +13,8 @@
 #ifndef FT_SELECT_H
 # define FT_SELECT_H
 
-# include "libft.h"
+# include "../libft/libft.h"
 # include <unistd.h>
-# include <stdio.h> // to remove
 # include <signal.h>
 # include <fcntl.h>
 # include <sys/ioctl.h>
@@ -25,6 +24,7 @@
 # include <sys/stat.h>
 # define FALSE 0
 # define TRUE 1
+# define OUT1 0
 # define PATH_MAX 3
 # define SETCOLOR 0
 # define ANSI_COLOR_BLACK	"\x1B[30m\x1B[42m"
@@ -87,11 +87,10 @@ struct termios		*get_terminal();
 int					move_cursor(t_term_info *t_info, t_select select[],
 	char direction);
 int					update_screen_info(void);
-int			display_result(t_term_info *term_info, t_select select[]);
+int					display_result(t_term_info *term_info, t_select select[]);
 
 int					read_term(t_term_info *t_info, t_select select[]);
 
-int					ft_putFileName(char *str, int type); // Add to the libft
-
+int					ft_put_file_name(char *str, int type);
 
 #endif

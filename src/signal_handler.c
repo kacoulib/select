@@ -15,39 +15,42 @@
 static void		stop_signal(int signum)
 {
 	t_term_info *term;
-	char	cp[3];
-	int		i;
+	char		cp[2];
 
-	i = signum;
+	(void)signum;
+	signal(SIGTSTP, SIG_DFL);
 	term = get_or_init_term(NULL, NULL);
 	reset_term(term->term);
 	cp[0] = term->term->c_cc[VSUSP];
-	cp[1] = '\n';
-	cp[2] = '\0';
+	cp[1] = '\0';
 	ioctl(isatty(STDOUT_FILENO), TIOCSTI, &cp);
-	// signal(SIGCONT, SIG_DFL);
 }
 
 static void		continue_signal(int signum)
 {
 	t_term_info *term;
+	char		*tmp;
 
 	(void)signum;
+	signal(SIGTSTP, stop_signal);
 	term = get_or_init_term(NULL, NULL);
-	(void )term;
-	reset_term(term->term);
-	read_term(term, term->select);
-	ioctl(STDOUT_FILENO, TIOCNOTTY, NULL);
-	
-	// signal(SIGTSTP, stop_signal);
-	// signal(SIGCONT, continue_signal);
-	// display_result(term, term->select);
+	(void)term;
+	term->term = get_terminal();
+	if (!set_cannic_mode(term->term))
+		return ;
+	if (!(tmp = tgetstr("ti", 0)))
+		return ;
+	tputs(tmp, 0, tputs_display_function);
+	if (!(tmp = tgetstr("vi", 0)))
+		return ;
+	tputs(tmp, 0, tputs_display_function);
+	display_all_elem();
 }
 
 static void		kill_signal(t_term_info *term, int signum)
 {
 	reset_term(term->term);
-	signal(signum, SIG_DFL);
+	(void)signum;
 	exit(1);
 }
 
@@ -58,40 +61,20 @@ static void		handle_signal(int signum)
 	term = get_or_init_term(NULL, NULL);
 	if (signum == SIGWINCH)
 		display_all_elem();
-	else if (signum == SIGINT)
-		kill_signal(term, signum);
-	else if (signum == SIGQUIT)
-		kill_signal(term, signum);
-	else if (signum == SIGTERM)
-		kill_signal(term, signum);
+	else if (signum == SIGCONT)
+		continue_signal(signum);
+	else if (signum == SIGTSTP)
+		stop_signal(signum);
 	else
-	{
-		reset_term(term->term);
-		signal(signum, SIG_DFL);
-		printf("This %d signal has been captured but not handler :(", signum);
-	}
+		kill_signal(term, signum);
 }
 
 int				signal_handler(void)
 {
-	// int			i;
+	int			i;
 
-
-	if (signal(SIGTSTP, SIG_IGN) != SIG_IGN)
-		signal(SIGTSTP, stop_signal);
-	if (signal(SIGCONT, SIG_IGN) != SIG_IGN)
-		signal(SIGCONT, continue_signal);
-	signal(SIGTERM, handle_signal);
-	signal(SIGINT, handle_signal);
-	signal(SIGQUIT, handle_signal);
-	signal(SIGWINCH, handle_signal);
-
-	// i = -1;
-	// while (++i < 32)
-	// 	signal(i, handle_signal);
-	// signal(SIGWINCH, handle_signal);
-	// // signal(SIGCONT, handle_signal);
-	// signal(SIGINT, handle_signal);
-	// signal(SIGTSTP, handle_signal);
+	i = 0;
+	while (++i < 32)
+		signal(i, handle_signal);
 	return (1);
 }

@@ -10,31 +10,32 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME    	=   ft_select
-CC      	=   gcc
-RM      	=   rm -f
-CFLAGS  	=  -Wall -Werror -Wextra
-LIB			=	-L./lib/libft -lft -lncurses
-CPPFLAGS	= 	-Iincludes
-SRCS		=   src/cursor_handler.c \
+NAME		=	ft_select
+CC			=	gcc
+RM			=	rm -f
+CFLAGS		=	-Wall -Werror -Wextra
+LIB			=	-L./libft -lft -lncurses
+CPPFLAGS	=	-Iincludes
+SRCS		=	src/cursor_handler.c \
 				src/keycode_handler.c \
+				src/screen_update.c \
 				src/screen_display.c \
 				src/selection_handler.c \
 				src/signal_handler.c \
 				src/terminal_handler.c \
 				src/ft_select.c
 
-OBJS    	=   $(SRCS:.c=.o)
+OBJS 		=	$(SRCS:.c=.o)
 
-all:        $(NAME)
+all:		$(NAME)
 
-$(NAME):    $(OBJS)
-			Make -C ./lib/libft
+$(NAME):	$(OBJS)
+			Make -C ./libft
 			$(CC) -o $(NAME) $(OBJS) $(LIB) $(CPPFLAGS)
 
 clean:
 			$(RM) $(OBJS)
-			Make -C ./lib/libft fclean
+			Make -C ./libft fclean
 
 fclean:		clean
 			$(RM) $(NAME)

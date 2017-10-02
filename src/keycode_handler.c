@@ -84,7 +84,7 @@ int					keyboard_events(char keycode[], t_select select[],
 			return (move_cursor(t_info, select, 'D'));
 		else if (keycode[2] == 65)
 			return (move_cursor(t_info, select, 'U'));
-		else
+		else if (keycode[1] == 0 && keycode[2] == 0)
 			return (0);
 	}
 	else if (keycode[0] == 127)
